@@ -75,3 +75,51 @@ model Price {
   product             String             @relation("PriceToProduct", fields: [product], references: [id])
 }
 
+enum subscription_status {
+  trialing
+  active
+  canceled
+  incomplete
+  incomplete_expired
+  past_due
+  unpaid
+}
+
+model subscriptions {
+  id                       String               @id @default(dbgenerated())
+  object                   String?
+  cancel_at_period_end     Boolean?
+  current_period_end       Int?
+  current_period_start     Int?
+  default_payment_method   String?
+  items                    Json?
+  metadata                 Json?
+  pending_setup_intent     String?
+  pending_update           Json?
+  status                   subscription_status?
+  application_fee_percent  Float?
+  billing_cycle_anchor     Int?
+  billing_thresholds       Json?
+  cancel_at                Int?
+  canceled_at              Int?
+  collection_method        String?
+  created                  Int?
+  days_until_due           Int?
+  default_source           String?
+  default_tax_rates        Json?
+  discount                 Json?
+  ended_at                 Int?
+  livemode                 Boolean?
+  next_pending_invoice_item_invoice Int?
+  pause_collection         Json?
+  pending_invoice_item_interval Json?
+  start_date               Int?
+  transfer_data            Json?
+  trial_end                Json?
+  trial_start              Json?
+  schedule                 String?
+  customer                 String               @references(Customer.id)
+  latest_invoice           String?              // not yet joined
+  plan                     String?              // not yet joined
+}
+
