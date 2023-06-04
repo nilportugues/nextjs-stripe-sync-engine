@@ -273,3 +273,23 @@ model Coupon {
   
   @@map("stripe.coupons")
 }
+
+model Dispute {
+  id                    String      @id @default(uuid())
+  object                String
+  amount                BigInt
+  charge                String?
+  reason                String?
+  status                String?
+  created               Int
+  updated               Int
+  currency              String?
+  evidence              Json
+  livemode              Boolean
+  metadata              Json?
+  evidence_details      Json?
+  balance_transactions  Json?
+  is_charge_refundable  Boolean
+  
+    @@map("stripe.disputes")
+}
