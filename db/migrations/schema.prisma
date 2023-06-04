@@ -201,3 +201,45 @@ model Invoice {
   charge                    String?                // Not yet implemented
 }
 
+model Charge {
+  id                     String        @id @default(dbgenerated()) @db.VarChar(255)
+  object                 String?
+  card                   Json?
+  paid                   Boolean?
+  order                  String?
+  amount                 BigInt?
+  review                 String?
+  source                 Json?
+  status                 String?
+  created                Int?
+  dispute                String?
+  invoice                String?
+  outcome                Json?
+  refunds                Json?
+  updated                Int?
+  captured               Boolean?
+  currency               String?
+  customer               String?
+  livemode               Boolean?
+  metadata               Json?
+  refunded               Boolean?
+  shipping               Json?
+  application            String?
+  description            String?
+  destination            String?
+  failure_code           String?
+  on_behalf_of           String?
+  fraud_details          Json?
+  receipt_email          String?
+  payment_intent         String?
+  receipt_number         String?
+  transfer_group         String?
+  amount_refunded        BigInt?
+  application_fee        String?
+  failure_message        String?
+  source_transfer        String?
+  balance_transaction    String?
+  statement_descriptor   String?
+  statement_description String?
+  payment_method_details Json?
+}
