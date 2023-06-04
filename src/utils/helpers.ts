@@ -1,46 +1,33 @@
-import { JsonSchema } from '../types/types'
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 /**
- * Returns an (yesql formatted) upsert function based on the key/vals of an object.
- * eg,
- *  insert into customers ("id", "name")
- *  values (:id, :name)
- *  on conflict (id)
- *  do update set (
- *   "id" = :id,
- *   "name" = :name
- *  )
+ * Upserts a record using Prisma ORM methods.
+ * @param schema The schema name
+ * @param table The table name
+ * @param record The record to upsert
+ * @param options Additional options (e.g., conflict field)
+ * @returns The upserted record
  */
-export const constructUpsertSql = (
+export const upsertRecord = async (
   schema: string,
   table: string,
-  tableSchema: JsonSchema,
+  record: Record<string, unknown>,
   options?: {
-    conflict?: string
+    conflict?: string;
   }
-): string => {
-  const { conflict = 'id' } = options || {}
-  const properties = tableSchema.properties
+): Promise<Record<string, unknown>> => {
+  const { conflict = 'id' } = options || {};
 
-  return `
-    insert into "${schema}"."${table}" (
-      ${Object.keys(properties)
-        .map((x) => `"${x}"`)
-        .join(',')}
-    )
-    values (
-      ${Object.keys(properties)
-        .map((x) => `:${x}`)
-        .join(',')}
-    )
-    on conflict (
-      ${conflict}
-    )
-    do update set 
-      ${Object.keys(properties)
-        .map((x) => `"${x}" = :${x}`)
-        .join(',')}
-    ;`
-}
+  const upsertedRecord = await prisma[schema][table].upsert({
+    where: { [conflict]: record[conflict] },
+    update: record,
+    create: record,
+  });
+
+  return upsertedRecord;
+};
+
 
 /**
  * For array object field like invoice.custom_fields
