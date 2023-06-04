@@ -1,9 +1,6 @@
 import Subscription from 'stripe'
-import { query } from '../utils/PostgresConnection'
 import { pg as sql } from 'yesql'
 import { getConfig } from '../utils/config'
-import { constructUpsertSql } from '../utils/helpers'
-import { subscriptionItemSchema } from '../schemas/subscription_item'
 import { upsertMany } from './database_utils'
 
 const config = getConfig()
@@ -26,7 +23,7 @@ export const upsertSubscriptionItems = async (
     }
   })
 
-  await upsertMany('subscription_items', modifiedSubscriptionItems)
+  await upsertMany('subscriptionItem', modifiedSubscriptionItems)
 }
 
 export const markDeletedSubscriptionItems = async (

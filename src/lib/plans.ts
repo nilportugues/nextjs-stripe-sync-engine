@@ -3,19 +3,18 @@ import { query } from '../utils/PostgresConnection'
 import { pg as sql } from 'yesql'
 import { getConfig } from '../utils/config'
 import { backfillProducts } from './products'
-import { constructUpsertSql } from '../utils/helpers'
 import { getUniqueIds, upsertMany } from './database_utils'
-import { planSchema } from '../schemas/plan'
 
 const config = getConfig()
 
 export const upsertPlans = async (plans: Stripe.Plan[]): Promise<Stripe.Plan[]> => {
   await backfillProducts(getUniqueIds(plans, 'product'))
 
-  return upsertMany(plans, () => constructUpsertSql(config.SCHEMA || 'stripe', 'plans', planSchema))
+  return upsertMany('plan', plans)
 }
 
 export const deletePlan = async (id: string): Promise<boolean> => {
+  
   const prepared = sql(`
     delete from "${config.SCHEMA}"."plans" 
     where id = :id

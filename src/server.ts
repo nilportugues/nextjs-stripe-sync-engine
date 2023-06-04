@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify'
 import { Server, IncomingMessage, ServerResponse } from 'http'
-import { runMigrations } from './utils/migrate'
 import { createServer } from './app'
 import pino from 'pino'
 
@@ -22,9 +21,6 @@ const main = async () => {
 
   // Init config
   const port = process.env.PORT || 8080
-
-  // Run migrations
-  await runMigrations()
 
   // Start the server
   app.listen({ port: Number(port), host: '0.0.0.0' }, (err, address) => {

@@ -1,19 +1,14 @@
 import Product from 'stripe'
-import { query } from '../utils/PostgresConnection'
 import { pg as sql } from 'yesql'
 import { getConfig } from '../utils/config'
 import { stripe } from '../utils/StripeClientManager'
-import { productSchema } from '../schemas/product'
-import { constructUpsertSql } from '../utils/helpers'
 import { findMissingEntries, upsertMany } from './database_utils'
 import Stripe from 'stripe'
 
 const config = getConfig()
 
 export const upsertProducts = async (products: Product.Product[]): Promise<Product.Product[]> => {
-  return upsertMany(products, () =>
-    constructUpsertSql(config.SCHEMA || 'stripe', 'products', productSchema)
-  )
+  return upsertMany('product', products)
 }
 
 export const deleteProduct = async (id: string): Promise<boolean> => {
@@ -27,7 +22,7 @@ export const deleteProduct = async (id: string): Promise<boolean> => {
 }
 
 export const backfillProducts = async (productids: string[]) => {
-  const missingProductIds = await findMissingEntries('products', productids)
+  const missingProductIds = await findMissingEntries('product', productids)
   await fetchAndInsertProducts(missingProductIds)
 }
 

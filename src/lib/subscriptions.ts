@@ -1,8 +1,6 @@
 import Subscription from 'stripe'
 import { getConfig } from '../utils/config'
 import { stripe } from '../utils/StripeClientManager'
-import { constructUpsertSql } from '../utils/helpers'
-import { subscriptionSchema } from '../schemas/subscription'
 import { backfillCustomers } from './customers'
 import { markDeletedSubscriptionItems, upsertSubscriptionItems } from './subscription_items'
 import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'

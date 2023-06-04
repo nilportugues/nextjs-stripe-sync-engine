@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient()
 
 type TableKeys = keyof Omit<PrismaClient, 'disconnect' | 'connect' | 'executeRaw' | 'queryRaw' | 'transaction' | 'on'>
-type Table = TableKeys
+export type Table = TableKeys
 
 
 export const upsertMany = async <T>(
