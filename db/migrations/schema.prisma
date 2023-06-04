@@ -43,3 +43,35 @@ model Customer {
 
   @@map("stripe.customers")
 }
+
+enum PricingType {
+  one_time
+  recurring
+}
+
+enum PricingTiers {
+  graduated
+  volume
+}
+
+model Price {
+  id                  String            @id
+  object              String
+  active              Boolean
+  currency            String
+  metadata            Json
+  nickname            String?
+  recurring           Json?
+  type                PricingType
+  unit_amount         Int
+  billing_scheme      String?
+  created             Int
+  livemode            Boolean
+  lookup_key          String?
+  tiers_mode          PricingTiers
+  transform_quantity  Json?
+  unit_amount_decimal String?
+
+  product             String             @relation("PriceToProduct", fields: [product], references: [id])
+}
+
