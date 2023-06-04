@@ -1,7 +1,6 @@
 import { getConfig } from '../utils/config'
 import Stripe from 'stripe'
-import { constructUpsertSql } from '../utils/helpers'
-import { setupIntentsSchema } from '../schemas/setup_intents'
+
 import { backfillCustomers } from './customers'
 import { getUniqueIds, upsertMany } from './database_utils'
 
@@ -12,7 +11,5 @@ export const upsertSetupIntents = async (
 ): Promise<Stripe.SetupIntent[]> => {
   await backfillCustomers(getUniqueIds(setupIntents, 'customer'))
 
-  return upsertMany(setupIntents, () =>
-    constructUpsertSql(config.SCHEMA || 'stripe', 'setup_intents', setupIntentsSchema)
-  )
+  return upsertMany('setupIntents', setupIntents)
 }

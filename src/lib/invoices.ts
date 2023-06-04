@@ -1,14 +1,10 @@
 import Invoice from 'stripe'
-import { getConfig } from '../utils/config'
-import { constructUpsertSql } from '../utils/helpers'
-import { invoiceSchema } from '../schemas/invoice'
 import { backfillCustomers } from './customers'
 import { backfillSubscriptions } from './subscriptions'
 import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'
 import Stripe from 'stripe'
 import { stripe } from '../utils/StripeClientManager'
 
-const config = getConfig()
 
 export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoice.Invoice[]> => {
   await Promise.all([
@@ -16,13 +12,11 @@ export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoi
     backfillSubscriptions(getUniqueIds(invoices, 'subscription')),
   ])
 
-  return upsertMany(invoices, () =>
-    constructUpsertSql(config.SCHEMA || 'stripe', 'invoices', invoiceSchema)
-  )
+  return upsertMany('invoice', invoices)
 }
 
 export const backfillInvoices = async (invoiceIds: string[]) => {
-  const missingInvoiceIds = await findMissingEntries('invoices', invoiceIds)
+  const missingInvoiceIds = await findMissingEntries('invoice', invoiceIds)
   await fetchAndInsertInvoices(missingInvoiceIds)
 }
 

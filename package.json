@@ -19,7 +19,10 @@
     "staging:deploy": "flyctl deploy",
     "staging:logs": "flyctl logs",
     "staging:secrets:fetch": "node internals/getSecrets.js staging",
-    "staging:secrets:set": "flyctl secrets import"
+    "staging:secrets:set": "flyctl secrets import",
+    "db:push": "prisma format; prisma generate; prisma db push",
+    "db:migrate:reset": "prisma format; prisma generate; prisma migrate reset",
+    "db:seed": "prisma format; prisma generate; prisma db seed"
   },
   "author": "Supabase",
   "license": "MIT",
@@ -30,13 +33,15 @@
     "@fastify/autoload": "^5.7.1",
     "@fastify/swagger": "^8.5.1",
     "@fastify/swagger-ui": "^1.8.1",
+    "@prisma/client": "^4.15.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.17.0",
     "pg": "^8.11.0",
     "pg-node-migrations": "0.0.8",
+    "pino": "^8.14.1",
+    "prisma": "^4.15.0",
     "stripe": "^8.222.0",
-    "yesql": "^6.1.0",
-    "pino": "^8.14.1"
+    "yesql": "^6.1.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",

@@ -18,9 +18,7 @@ export const upsertSubscriptions = async (
   await backfillCustomers(customerIds)
 
   // Run it
-  const rows = await upsertMany(subscriptions, () =>
-    constructUpsertSql(config.SCHEMA || 'stripe', 'subscriptions', subscriptionSchema)
-  )
+  const rows = await upsertMany('subscriptions', subscriptions)
 
   // Upsert subscription items into a separate table
   // need to run after upsert subscription cos subscriptionItems will reference the subscription

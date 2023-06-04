@@ -1,0 +1,513 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id                   String   @id @default(uuid())
+  object               String?
+  active               Boolean?
+  description          String?
+  metadata             Json?
+  name                 String?
+  created              Int?
+  images               Json?
+  livemode             Boolean?
+  package_dimensions   Json?
+  shippable            Boolean?
+  statement_descriptor String?
+  unit_label           String?
+  updated              Int?
+  url                  String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  Price                Price[]
+
+  @@map("stripe.products")
+}
+
+model Customer {
+  id                    String          @id @default(cuid())
+  object                String?
+  address               Json?
+  description           String?
+  email                 String?
+  metadata              Json?
+  name                  String?
+  phone                 String?
+  shipping              Json?
+  balance               Int?
+  created               Int?
+  currency              String?
+  default_source        String?
+  delinquent            Boolean?
+  discount              Json?
+  invoice_prefix        String?
+  invoice_settings      Json?
+  livemode              Boolean?
+  next_invoice_sequence Int?
+  preferred_locales     Json?
+  tax_exempt            String?
+  invoices              Invoice[]
+  deleted               Boolean         @default(false)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  Subscriptions         Subscriptions[]
+
+  @@map("stripe.customers")
+}
+
+enum PricingType {
+  one_time
+  recurring
+}
+
+enum PricingTiers {
+  graduated
+  volume
+}
+
+model Price {
+  id                  String       @id
+  object              String
+  active              Boolean
+  currency            String
+  metadata            Json
+  nickname            String?
+  recurring           Json?
+  type                PricingType
+  unit_amount         Int
+  billing_scheme      String?
+  created             Int
+  livemode            Boolean
+  lookup_key          String?
+  tiers_mode          PricingTiers
+  transform_quantity  Json?
+  unit_amount_decimal String?
+
+  product          Product?           @relation(fields: [productId], references: [id])
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  productId        String?
+  SubscriptionItem SubscriptionItem[]
+
+  @@map("stripe.price")
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  canceled
+  incomplete
+  incomplete_expired
+  past_due
+  unpaid
+}
+
+model Subscriptions {
+  id                                String              @id @default(dbgenerated())
+  object                            String?
+  cancel_at_period_end              Boolean?
+  current_period_end                Int?
+  current_period_start              Int?
+  default_payment_method            String?
+  items                             Json[]
+  metadata                          Json?
+  pending_setup_intent              String?
+  pending_update                    Json?
+  status                            SubscriptionStatus?
+  application_fee_percent           Float?
+  billing_cycle_anchor              Int?
+  billing_thresholds                Json?
+  cancel_at                         Int?
+  canceled_at                       Int?
+  collection_method                 String?
+  created                           Int?
+  days_until_due                    Int?
+  default_source                    String?
+  default_tax_rates                 Json?
+  discount                          Json?
+  ended_at                          Int?
+  livemode                          Boolean?
+  next_pending_invoice_item_invoice Int?
+  pause_collection                  Json?
+  pending_invoice_item_interval     Json?
+  start_date                        Int?
+  transfer_data                     Json?
+  trial_end                         Json?
+  trial_start                       Json?
+  schedule                          String?
+  customer                          Customer            @relation(fields: [customerId], references: [id])
+  latest_invoice                    String? // not yet joined
+  plan                              String? // not yet joined
+
+  invoices Invoice[]
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  customerId       String
+  SubscriptionItem SubscriptionItem[]
+
+  @@map("stripe.subscriptions")
+}
+
+enum InvoiceStatus {
+  draft
+  open
+  paid
+  uncollectible
+  void
+}
+
+model Invoice {
+  id                               String         @id @default(cuid())
+  object                           String?
+  auto_advance                     Boolean?
+  collection_method                String?
+  currency                         String?
+  description                      String?
+  hosted_invoice_url               String?
+  lines                            Json?
+  metadata                         Json?
+  period_end                       Int?
+  period_start                     Int?
+  status                           InvoiceStatus?
+  total                            Int?
+  account_country                  String?
+  account_name                     String?
+  account_tax_ids                  Json?
+  amount_due                       Int?
+  amount_paid                      Int?
+  amount_remaining                 Int?
+  application_fee_amount           Int?
+  attempt_count                    Int?
+  attempted                        Boolean?
+  billing_reason                   String?
+  created                          Int?
+  custom_fields                    Json?
+  customer_address                 Json?
+  customer_email                   String?
+  customer_name                    String?
+  customer_phone                   String?
+  customer_shipping                Json?
+  customer_tax_exempt              String?
+  customer_tax_ids                 Json?
+  default_tax_rates                Json?
+  discount                         Json?
+  discounts                        Json?
+  due_date                         Int?
+  ending_balance                   Int?
+  footer                           String?
+  invoice_pdf                      String?
+  last_finalization_error          Json?
+  livemode                         Boolean?
+  next_payment_attempt             Int?
+  number                           String?
+  paid                             Boolean?
+  payment_settings                 Json?
+  post_payment_credit_notes_amount Int?
+  pre_payment_credit_notes_amount  Int?
+  receipt_number                   String?
+  starting_balance                 Int?
+  statement_descriptor             String?
+  status_transitions               Json?
+  subtotal                         Int?
+  tax                              Int?
+  total_discount_amounts           Json?
+  total_tax_amounts                Json?
+  transfer_data                    Json?
+  webhooks_delivered_at            Int?
+
+  customer               Customer?      @relation(fields: [customerId], references: [id])
+  subscription           Subscriptions? @relation(fields: [subscriptionsId], references: [id])
+  payment_intent         String? // Not yet implemented
+  default_payment_method String? // Not yet implemented
+  default_source         String? // Not yet implemented
+  on_behalf_of           String? // Not yet implemented
+  charge                 String? // Not yet implemented
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  customerId      String?
+  subscriptionsId String?
+
+  @@map("stripe.invoices")
+}
+
+model Charge {
+  id     String  @id @default(dbgenerated()) @db.VarChar(255)
+  object String?
+
+  paid                   Boolean?
+  order                  String?
+  amount                 BigInt?
+  review                 String?
+  source                 Json?
+  status                 String?
+  created                Int?
+  dispute                String?
+  invoice                String?
+  outcome                Json?
+  refunds                Json?
+  updated                Int?
+  captured               Boolean?
+  currency               String?
+  customer               String?
+  livemode               Boolean?
+  metadata               Json?
+  refunded               Boolean?
+  shipping               Json?
+  application            String?
+  description            String?
+  destination            String?
+  failure_code           String?
+  on_behalf_of           String?
+  fraud_details          Json?
+  receipt_email          String?
+  payment_intent         String?
+  receipt_number         String?
+  transfer_group         String?
+  amount_refunded        BigInt?
+  application_fee        String?
+  failure_message        String?
+  source_transfer        String?
+  balance_transaction    String?
+  statement_descriptor   String?
+  payment_method_details Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stripe.charges")
+}
+
+model Coupon {
+  id                  String  @id @default(uuid())
+  object              String
+  name                String?
+  valid               Boolean
+  created             Int
+  updated             Int
+  currency            String
+  duration            String
+  livemode            Boolean
+  metadata            Json    @db.Json
+  redeem_by           Int?
+  amount_off          BigInt
+  percent_off         Float
+  times_redeemed      BigInt
+  max_redemptions     BigInt
+  duration_in_months  BigInt
+  percent_off_precise Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stripe.coupons")
+}
+
+model Dispute {
+  id                   String  @id @default(uuid())
+  object               String
+  amount               BigInt
+  charge               String?
+  reason               String?
+  status               String?
+  created              Int
+  updated              Int
+  currency             String?
+  evidence             Json
+  livemode             Boolean
+  metadata             Json?
+  evidence_details     Json?
+  balance_transactions Json?
+  is_charge_refundable Boolean
+
+  payment_intent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([created], name: "stripe_dispute_created_idx")
+  @@map("stripe.disputes")
+}
+
+model Event {
+  id               String  @id @default(dbgenerated()) // Assuming the `id` field is auto-generated by the database
+  object           String
+  data             Json
+  type             String
+  created          Int
+  request          String
+  updated          Int
+  livemode         Boolean
+  api_version      String
+  pending_webhooks BigInt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stripe.events")
+}
+
+model Payout {
+  id                          String  @id @default(cuid())
+  object                      String
+  date                        String
+  type                        String
+  amount                      BigInt
+  method                      String
+  status                      String
+  created                     Int
+  updated                     Int
+  currency                    String
+  livemode                    Boolean
+  metadata                    Json
+  automatic                   Boolean
+  recipient                   String
+  description                 String
+  destination                 String
+  source_type                 String
+  arrival_date                String
+  bank_account                Json
+  failure_code                String
+  transfer_group              String
+  amount_reversed             BigInt
+  failure_message             String
+  source_transaction          String
+  balance_transaction         String
+  statement_descriptor        String
+  statement_description       String
+  failure_balance_transaction String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stripe.payouts")
+}
+
+model Plan {
+  id     String  @id
+  object String?
+
+  active  Boolean?
+  amount  Int?
+  created Int?
+  product String?
+
+  currency          String?
+  interval          String?
+  livemode          Boolean?
+  metadata          Json? // Replace 'jsonb' with 'Json'
+  nickname          String?
+  tiers_mode        String?
+  usage_type        String?
+  billing_scheme    String?
+  interval_count    Int?
+  aggregate_usage   String?
+  transform_usage   String?
+  trial_period_days Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stripe.plans")
+}
+
+model SubscriptionItem {
+  id                 String         @id @default(uuid())
+  object             String?
+  billing_thresholds Json?
+  created            Int?
+  deleted            Boolean?
+  metadata           Json?
+  quantity           Int?
+  price              Price?         @relation(fields: [priceId], references: [id])
+  subscription       Subscriptions? @relation(fields: [subscriptionsId], references: [id])
+  tax_rates          Json?
+  priceId            String?
+  subscriptionsId    String?
+
+  @@map("stripe.subscription_items")
+}
+
+model SetupIntent {
+  id                  String  @id @default(uuid())
+  object              String?
+  created             Int?
+  customer            String?
+  description         String?
+  payment_method      String?
+  status              String?
+  usage               String?
+  cancellation_reason String?
+  latest_attempt      String?
+  mandate             String?
+  single_use_mandate  String?
+  on_behalf_of        String?
+
+  @@index([customer], name: "setup_intents_customer_idx")
+  @@map("stripe.setup_intent")
+}
+
+model PaymentMethod {
+  id              String @id @map("id")
+  object          String
+  created         Int
+  customer        String
+  type            String
+  billing_details Json
+  metadata        Json
+  card            Json
+
+  @@index([customer], name: "stripe_payment_methods_customer_idx")
+  @@map("stripe.payment_methods")
+}
+
+model PaymentIntent {
+  id                          String   @id @default(cuid())
+  object                      String?
+  amount                      Int?
+  amount_capturable           Int?
+  amount_details              Json?
+  amount_received             Int?
+  application                 String?
+  application_fee_amount      Int?
+  automatic_payment_methods   String?
+  canceled_at                 Int?
+  cancellation_reason         String?
+  capture_method              String?
+  client_secret               String?
+  confirmation_method         String?
+  created                     Int?
+  currency                    String?
+  customer                    String?
+  description                 String?
+  invoice                     String?
+  last_payment_error          String?
+  livemode                    Boolean?
+  metadata                    Json?
+  next_action                 String?
+  on_behalf_of                String?
+  payment_method              String?
+  payment_method_options      Json?
+  payment_method_types        Json?
+  processing                  String?
+  receipt_email               String?
+  review                      String?
+  setup_future_usage          String?
+  shipping                    Json?
+  statement_descriptor        String?
+  statement_descriptor_suffix String?
+  status                      String?
+  transfer_data               Json?
+  transfer_group              String?
+
+  @@index([invoice], name: "stripe_payment_intents_invoice_idx")
+  @@index([customer], name: "stripe_payment_intents_customer_idx")
+  @@map("stripe.payment_intents")
+}

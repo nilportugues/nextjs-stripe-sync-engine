@@ -7,11 +7,12 @@ import Stripe from 'stripe'
 import { findMissingEntries, upsertMany } from './database_utils'
 
 const config = getConfig()
+const PRISMA_MODEL_NAME = 'customer'
 
 export const upsertCustomers = async (
   customers: Customer.Customer[]
 ): Promise<Customer.Customer[]> => {
-  return upsertMany(customers, (customer) => {
+  return upsertMany(PRISMA_MODEL_NAME, customers, (customer) => {
     // handle deleted customer
     if (customer.deleted) {
       return constructUpsertSql(config.SCHEMA || 'stripe', 'customers', customerDeletedSchema)
@@ -22,7 +23,7 @@ export const upsertCustomers = async (
 }
 
 export const backfillCustomers = async (customerIds: string[]) => {
-  const missingCustomerIds = await findMissingEntries('customers', customerIds)
+  const missingCustomerIds = await findMissingEntries(PRISMA_MODEL_NAME, customerIds)
   await fetchAndInsertCustomers(missingCustomerIds)
 }
 

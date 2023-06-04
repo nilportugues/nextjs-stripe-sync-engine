@@ -1,13 +1,10 @@
 import Stripe from 'stripe'
-import { getConfig } from '../utils/config'
-import { constructUpsertSql } from '../utils/helpers'
-import { chargeSchema } from '../schemas/charge'
 import { backfillInvoices } from './invoices'
 import { backfillCustomers } from './customers'
 import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'
 import { stripe } from '../utils/StripeClientManager'
 
-const config = getConfig()
+const PRISMA_MODEL_NAME = 'charge'
 
 export const upsertCharges = async (charges: Stripe.Charge[]): Promise<Stripe.Charge[]> => {
   await Promise.all([
@@ -15,13 +12,11 @@ export const upsertCharges = async (charges: Stripe.Charge[]): Promise<Stripe.Ch
     backfillInvoices(getUniqueIds(charges, 'invoice')),
   ])
 
-  return upsertMany(charges, () =>
-    constructUpsertSql(config.SCHEMA || 'stripe', 'charges', chargeSchema)
-  )
+  return upsertMany(PRISMA_MODEL_NAME, charges)
 }
 
 export const backfillCharges = async (chargeIds: string[]) => {
-  const missingChargeIds = await findMissingEntries('charges', chargeIds)
+  const missingChargeIds = await findMissingEntries(PRISMA_MODEL_NAME, chargeIds)
   await fetchAndInsertCharges(missingChargeIds)
 }
 

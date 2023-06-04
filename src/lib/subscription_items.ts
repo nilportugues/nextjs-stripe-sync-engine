@@ -26,9 +26,7 @@ export const upsertSubscriptionItems = async (
     }
   })
 
-  await upsertMany(modifiedSubscriptionItems, () =>
-    constructUpsertSql(config.SCHEMA || 'stripe', 'subscription_items', subscriptionItemSchema)
-  )
+  await upsertMany('subscription_items', modifiedSubscriptionItems)
 }
 
 export const markDeletedSubscriptionItems = async (
