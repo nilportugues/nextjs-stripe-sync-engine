@@ -308,3 +308,34 @@ model Event {
   
       @@map("stripe.events")
 }
+
+model Payout {
+  id                        String      @id @default(cuid())
+  object                    String
+  date                      String
+  type                      String
+  amount                    BigInt
+  method                    String
+  status                    String
+  created                   Int
+  updated                   Int
+  currency                  String
+  livemode                  Boolean
+  metadata                  Json
+  automatic                 Boolean
+  recipient                 String
+  description               String
+  destination               String
+  source_type               String
+  arrival_date              String
+  bank_account              Json
+  failure_code              String
+  transfer_group            String
+  amount_reversed           BigInt
+  failure_message           String
+  source_transaction        String
+  balance_transaction       String
+  statement_descriptor      String
+  statement_description     String
+  failure_balance_transaction String
+}
