@@ -1,12 +1,10 @@
 import Subscription from 'stripe'
-import { getConfig } from '../utils/config'
 import { stripe } from '../utils/StripeClientManager'
 import { backfillCustomers } from './customers'
 import { markDeletedSubscriptionItems, upsertSubscriptionItems } from './subscription_items'
 import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'
 import Stripe from 'stripe'
 
-const config = getConfig()
 
 export const upsertSubscriptions = async (
   subscriptions: Subscription.Subscription[]

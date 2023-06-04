@@ -1,13 +1,11 @@
 import Subscription from 'stripe'
-import { pg as sql } from 'yesql'
-import { getConfig } from '../utils/config'
 import { upsertMany } from './database_utils'
 
-const config = getConfig()
+import { PrismaClient } from '@prisma/client';
 
-export const upsertSubscriptionItems = async (
-  subscriptionItems: Subscription.SubscriptionItem[]
-) => {
+const prisma = new PrismaClient();
+
+export const upsertSubscriptionItems = async (subscriptionItems: Subscription.SubscriptionItem[]) => {
   const modifiedSubscriptionItems = subscriptionItems.map((subscriptionItem) => {
     // Modify price object to string id; reference prices table
     const priceId = subscriptionItem.price.id.toString()
@@ -26,28 +24,42 @@ export const upsertSubscriptionItems = async (
   await upsertMany('subscriptionItem', modifiedSubscriptionItems)
 }
 
+
 export const markDeletedSubscriptionItems = async (
   subscriptionId: string,
   currentSubItemIds: string[]
 ): Promise<{ rowCount: number }> => {
-  let prepared = sql(`
-    select id from "${config.SCHEMA}"."subscription_items"
-    where subscription = :subscriptionId and deleted = false;
-    `)({ subscriptionId })
-  const { rows } = await query(prepared.text, prepared.values)
-  const deletedIds = rows.filter(
-    ({ id }: { id: string }) => currentSubItemIds.includes(id) === false
-  )
+  const existingItems = await prisma.subscriptionItem.findMany({
+    where: {
+      subscription: {
+        id: subscriptionId
+      },
+      deleted: false,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const deletedIds = existingItems
+    .filter(({ id }) => !currentSubItemIds.includes(id))
+    .map(({ id }) => id);
 
   if (deletedIds.length > 0) {
-    const ids = deletedIds.map(({ id }: { id: string }) => id)
-    prepared = sql(`
-      update "${config.SCHEMA}"."subscription_items"
-      set deleted = true where id=any(:ids::text[]);
-      `)({ ids })
-    const { rowCount } = await query(prepared.text, prepared.values)
-    return { rowCount }
+    await prisma.subscriptionItem.updateMany({
+      where: {
+        id: {
+          in: deletedIds,
+        },
+      },
+      data: {
+        deleted: true,
+      },
+    });
+
+    return { rowCount: deletedIds.length };
   } else {
-    return { rowCount: 0 }
+    return { rowCount: 0 };
   }
-}
+};
+

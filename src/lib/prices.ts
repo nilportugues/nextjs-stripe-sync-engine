@@ -1,10 +1,9 @@
 import Price from 'stripe'
-import { pg as sql } from 'yesql'
-import { getConfig } from '../utils/config'
 import { backfillProducts } from './products'
 import { getUniqueIds, upsertMany } from './database_utils'
+import { PrismaClient } from '@prisma/client'
 
-const config = getConfig()
+const prisma = new PrismaClient()
 
 export const upsertPrices = async (prices: Price.Price[]): Promise<Price.Price[]> => {
   await backfillProducts(getUniqueIds(prices, 'product'))
@@ -13,11 +12,9 @@ export const upsertPrices = async (prices: Price.Price[]): Promise<Price.Price[]
 }
 
 export const deletePrice = async (id: string): Promise<boolean> => {
-  const prepared = sql(`
-    delete from "${config.SCHEMA}"."prices" 
-    where id = :id
-    returning id;
-    `)({ id })
-  const { rows } = await query(prepared.text, prepared.values)
-  return rows.length > 0
-}
+  const deletedPrice = await prisma.price.delete({
+    where: { id },
+  });
+
+  return !!deletedPrice;
+};

@@ -9,12 +9,11 @@ import { upsertSetupIntents } from './setup_intents'
 import { upsertPaymentMethods } from './payment_methods'
 import { upsertDisputes } from './disputes'
 import { upsertCharges } from './charges'
-import { getConfig } from '../utils/config'
-import { pg as sql } from 'yesql'
 import { upsertPaymentIntents } from './payment_intents'
 import { upsertPlans } from './plans'
+import { PrismaClient } from '@prisma/client'
 
-const config = getConfig()
+const prisma = new PrismaClient()
 
 interface Sync {
   synced: number
@@ -60,23 +59,41 @@ export async function syncSingleEntity(stripeId: string) {
 
       return upsertCustomers([it])
     })
-  } else if (stripeId.startsWith('in_')) {
+  } 
+  
+  if (stripeId.startsWith('in_')) {
     return stripe.invoices.retrieve(stripeId).then((it) => upsertInvoices([it]))
-  } else if (stripeId.startsWith('price_')) {
+  } 
+  
+  if (stripeId.startsWith('price_')) {
     return stripe.prices.retrieve(stripeId).then((it) => upsertPrices([it]))
-  } else if (stripeId.startsWith('prod_')) {
+  } 
+  
+  if (stripeId.startsWith('prod_')) {
     return stripe.products.retrieve(stripeId).then((it) => upsertProducts([it]))
-  } else if (stripeId.startsWith('sub_')) {
+  } 
+  
+  if (stripeId.startsWith('sub_')) {
     return stripe.subscriptions.retrieve(stripeId).then((it) => upsertSubscriptions([it]))
-  } else if (stripeId.startsWith('seti_')) {
+  } 
+  
+  if (stripeId.startsWith('seti_')) {
     return stripe.setupIntents.retrieve(stripeId).then((it) => upsertSetupIntents([it]))
-  } else if (stripeId.startsWith('pm_')) {
+  } 
+  
+  if (stripeId.startsWith('pm_')) {
     return stripe.paymentMethods.retrieve(stripeId).then((it) => upsertPaymentMethods([it]))
-  } else if (stripeId.startsWith('dp_') || stripeId.startsWith('du_')) {
+  } 
+  
+  if (stripeId.startsWith('dp_') || stripeId.startsWith('du_')) {
     return stripe.disputes.retrieve(stripeId).then((it) => upsertDisputes([it]))
-  } else if (stripeId.startsWith('ch_')) {
+  } 
+  
+  if (stripeId.startsWith('ch_')) {
     return stripe.charges.retrieve(stripeId).then((it) => upsertCharges([it]))
-  } else if (stripeId.startsWith('pi_')) {
+  } 
+  
+  if (stripeId.startsWith('pi_')) {
     return stripe.paymentIntents.retrieve(stripeId).then((it) => upsertPaymentIntents([it]))
   }
 }
@@ -240,38 +257,42 @@ export async function syncPaymentIntents(created?: Stripe.RangeQueryParam): Prom
   return fetchAndUpsert(() => stripe.paymentIntents.list(params), upsertPaymentIntents)
 }
 
-export async function syncPaymentMethods(): Promise<Sync> {
-  // We can't filter by date here, it is also not possible to get payment methods without specifying a customer (you need Stripe Sigma for that -.-)
-  // Thus, we need to loop through all customers
-  console.log('Syncing payment method')
 
-  const prepared = sql(`select id from "${config.SCHEMA}"."customers" WHERE deleted <> true;`)([])
+export async function syncPaymentMethods(): Promise<{ synced: number }> {
+  console.log('Syncing payment methods');
 
-  const customerIds = await query(prepared.text, prepared.values).then(({ rows }) =>
-    rows.map((it) => it.id)
-  )
+  const customers = await prisma.customer.findMany({
+    where: {
+      deleted: {
+        not: true,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
 
-  console.log(`Getting payment methods for ${customerIds.length} customers`)
+  const customerIds = customers.map((customer: Stripe.Customer) => customer.id);
 
-  let synced = 0
+  console.log(`Getting payment methods for ${customerIds.length} customers`);
+
+  let synced = 0;
 
   for (const customerId of customerIds) {
-    const syncResult = await fetchAndUpsert(
-      () =>
-        // The type parameter is optional, types are wrong
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        stripe.paymentMethods.list({
-          limit: 100,
-          customer: customerId,
-        }),
-      upsertPaymentMethods
-    )
+    const syncResult = await fetchAndUpsert(() => {
+      // The type parameter is optional, types are wrong
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return stripe.paymentMethods.list({
+        limit: 100,
+        customer: customerId,
+      });
+    }, upsertPaymentMethods);
 
-    synced += syncResult.synced
+    synced += syncResult.synced;
   }
 
-  return { synced }
+  return { synced };
 }
 
 export async function syncDisputes(created?: Stripe.RangeQueryParam): Promise<Sync> {
