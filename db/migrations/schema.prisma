@@ -1,0 +1,19 @@
+model Product {
+  id                  String     @id @default(uuid())
+  object              String?
+  active              Boolean?
+  description         String?
+  metadata            Json?
+  name                String?
+  created             Int?
+  images              Json?
+  livemode            Boolean?
+  package_dimensions  Json?
+  shippable           Boolean?
+  statement_descriptor String?
+  unit_label          String?
+  updated             Int?
+  url                 String?
+
+  @@map("stripe.products")
+}
