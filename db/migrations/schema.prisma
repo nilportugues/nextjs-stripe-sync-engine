@@ -108,7 +108,7 @@ model Subscriptions {
   current_period_end       Int?
   current_period_start     Int?
   default_payment_method   String?
-  items                    Json?
+  items           Json[]
   metadata                 Json?
   pending_setup_intent     String?
   pending_update           Json?
@@ -139,7 +139,7 @@ model Subscriptions {
   plan                     String?              // not yet joined
   
   invoices      Invoice[]              @relation("invoices_subscription")
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
