@@ -51,7 +51,7 @@ model Customer {
   preferred_locales    Json?
   tax_exempt           String?
   invoices      Invoice[]              @relation("invoices_customer")
-  
+   deleted       Boolean    @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("stripe.customers")
