@@ -40,7 +40,7 @@ model Customer {
   next_invoice_sequence Int?
   preferred_locales    Json?
   tax_exempt           String?
-
+  invoices      Invoice[]              @relation("invoices_customer")
   @@map("stripe.customers")
 }
 
@@ -121,5 +121,83 @@ model Subscriptions {
   customer                 String               @references(Customer.id)
   latest_invoice           String?              // not yet joined
   plan                     String?              // not yet joined
+  
+  invoices      Invoice[]              @relation("invoices_subscription")
+}
+
+enum InvoiceStatus {
+  draft
+  open
+  paid
+  uncollectible
+  void
+}
+
+model Invoice {
+  id                        String                  @id @default(cuid())
+  object                    String?
+  auto_advance              Boolean?
+  collection_method         String?
+  currency                  String?
+  description               String?
+  hosted_invoice_url        String?
+  lines                     Json?
+  metadata                  Json?
+  period_end                Int?
+  period_start              Int?
+  status                    InvoiceStatus?
+  total                     Int?
+  account_country           String?
+  account_name              String?
+  account_tax_ids           Json?
+  amount_due                Int?
+  amount_paid               Int?
+  amount_remaining          Int?
+  application_fee_amount    Int?
+  attempt_count             Int?
+  attempted                 Boolean?
+  billing_reason            String?
+  created                   Int?
+  custom_fields             Json?
+  customer_address          Json?
+  customer_email            String?
+  customer_name             String?
+  customer_phone            String?
+  customer_shipping         Json?
+  customer_tax_exempt       String?
+  customer_tax_ids          Json?
+  default_tax_rates         Json?
+  discount                  Json?
+  discounts                 Json?
+  due_date                  Int?
+  ending_balance            Int?
+  footer                    String?
+  invoice_pdf               String?
+  last_finalization_error   Json?
+  livemode                  Boolean?
+  next_payment_attempt      Int?
+  number                    String?
+  paid                      Boolean?
+  payment_settings          Json?
+  post_payment_credit_notes_amount    Int?
+  pre_payment_credit_notes_amount     Int?
+  receipt_number            String?
+  starting_balance          Int?
+  statement_descriptor      String?
+  status_transitions        Json?
+  subtotal                  Int?
+  tax                       Int?
+  total_discount_amounts    Json?
+  total_tax_amounts         Json?
+  transfer_data             Json?
+  webhooks_delivered_at     Int?
+
+  customer                  String?                @relation("invoices_customer", fields: [customer], references: [id])
+  subscription              String?                @relation("invoices_subscription", fields: [subscription], references: [id])
+  payment_intent            String?                // Not yet implemented
+  default_payment_method    String?                // Not yet implemented
+  default_source            String?                // Not yet implemented
+  on_behalf_of              String?                // Not yet implemented
+  charge                    String?                // Not yet implemented
 }
 
