@@ -400,3 +400,17 @@ model Plan {
         @@map("stripe.plans")
 }
 
+model SubscriptionItem {
+  id                String      @id @default(uuid())
+  object            String?
+  billing_thresholds Json?
+  created           Int?
+  deleted           Boolean?
+  metadata          Json?
+  quantity          Int?
+  price             String?    @relation("price_fk", fields: [price], references: [id])
+  subscription      String?    @relation("subscription_fk", fields: [subscription], references: [id])
+  tax_rates         Json?
+  
+          @@map("stripe.subscription_items")
+}
