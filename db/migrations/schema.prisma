@@ -73,6 +73,8 @@ model Price {
   unit_amount_decimal String?
 
   product             String             @relation("PriceToProduct", fields: [product], references: [id])
+  
+   @@map("stripe.price")
 }
 
 enum SubscriptionStatus {
@@ -123,6 +125,8 @@ model Subscriptions {
   plan                     String?              // not yet joined
   
   invoices      Invoice[]              @relation("invoices_subscription")
+  
+  @@map("stripe.subscriptions")
 }
 
 enum InvoiceStatus {
@@ -199,6 +203,8 @@ model Invoice {
   default_source            String?                // Not yet implemented
   on_behalf_of              String?                // Not yet implemented
   charge                    String?                // Not yet implemented
+  
+    @@map("stripe.invoices")
 }
 
 model Charge {
@@ -242,4 +248,28 @@ model Charge {
   statement_descriptor   String?
   statement_description String?
   payment_method_details Json?
+  
+  @@map("stripe.charges")
+}
+
+model Coupon {
+  id                    String      @id @default(uuid()) 
+  object                String
+  name                  String?
+  valid                 Boolean
+  created               Int
+  updated               Int
+  currency              String
+  duration              String
+  livemode              Boolean
+  metadata              Json        @db.Json
+  redeem_by             Int?
+  amount_off            BigInt
+  percent_off           Float
+  times_redeemed        BigInt
+  max_redemptions       BigInt
+  duration_in_months    BigInt
+  percent_off_precise   Float
+  
+  @@map("stripe.coupons")
 }
