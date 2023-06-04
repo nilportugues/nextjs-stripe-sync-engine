@@ -75,7 +75,7 @@ model Price {
   product             String             @relation("PriceToProduct", fields: [product], references: [id])
 }
 
-enum Subscription_status {
+enum SubscriptionStatus {
   trialing
   active
   canceled
@@ -96,7 +96,7 @@ model Subscriptions {
   metadata                 Json?
   pending_setup_intent     String?
   pending_update           Json?
-  status                   Subscription_status?
+  status                   SubscriptionStatus?
   application_fee_percent  Float?
   billing_cycle_anchor     Int?
   billing_thresholds       Json?
