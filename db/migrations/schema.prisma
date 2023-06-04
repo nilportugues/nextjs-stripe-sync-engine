@@ -454,3 +454,47 @@ model PaymentMethod {
   @@index([customer], name: "stripe_payment_methods_customer_idx")
   @@map("stripe.payment_methods")
 }
+
+model PaymentIntent {
+  id                        String           @id @default(cuid())
+  object                    String?
+  amount                    Int?
+  amount_capturable         Int?
+  amount_details            Json?
+  amount_received           Int?
+  application               String?
+  application_fee_amount    Int?
+  automatic_payment_methods String?
+  canceled_at               Int?
+  cancellation_reason       String?
+  capture_method            String?
+  client_secret             String?
+  confirmation_method       String?
+  created                   Int?
+  currency                  String?
+  customer                  String?
+  description               String?
+  invoice                   String?
+  last_payment_error        String?
+  livemode                  Boolean?
+  metadata                  Json?
+  next_action               String?
+  on_behalf_of              String?
+  payment_method            String?
+  payment_method_options    Json?
+  payment_method_types      Json?
+  processing                String?
+  receipt_email             String?
+  review                    String?
+  setup_future_usage        String?
+  shipping                  Json?
+  statement_descriptor      String?
+  statement_descriptor_suffix String?
+  status                    String?
+  transfer_data             Json?
+  transfer_group            String?
+
+  @@index([invoice], name: "stripe_payment_intents_invoice_idx")
+  @@index([customer], name: "stripe_payment_intents_customer_idx")
+  @@map("stripe.payment_intents")
+}
