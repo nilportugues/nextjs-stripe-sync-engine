@@ -1,26 +1,48 @@
-import Customer from 'stripe'
-import { getConfig } from '../utils/config'
 import { stripe } from '../utils/StripeClientManager'
-import { constructUpsertSql } from '../utils/helpers'
-import { customerSchema, customerDeletedSchema } from '../schemas/customer'
 import Stripe from 'stripe'
-import { findMissingEntries, upsertMany } from './database_utils'
+import { findMissingEntries } from './database_utils'
+import prisma from '../prisma/client'
 
-const config = getConfig()
 const PRISMA_MODEL_NAME = 'customer'
 
-export const upsertCustomers = async (
-  customers: Customer.Customer[]
-): Promise<Customer.Customer[]> => {
-  return upsertMany(PRISMA_MODEL_NAME, customers, (customer) => {
-    // handle deleted customer
-    if (customer.deleted) {
-      return constructUpsertSql(config.SCHEMA || 'stripe', 'customers', customerDeletedSchema)
-    } else {
-      return constructUpsertSql(config.SCHEMA || 'stripe', 'customers', customerSchema)
+
+export const upsertCustomers = async (customers: Stripe.Customer[]) => {
+
+  const upsertPromises = customers.map((customer) => {
+
+    const {address, metadata, shipping, discount, invoice_settings, preferred_locales, default_source, deleted, ...data} = customer
+
+    const record = {
+      ...data,
+      address: address ? JSON.stringify(address) : undefined,
+      metadata: metadata ? JSON.stringify(metadata) : undefined,
+      shipping: shipping ? JSON.stringify(shipping) : undefined,
+      discount: discount ? JSON.stringify(discount) : undefined,
+      invoice_settings: invoice_settings ? JSON.stringify(invoice_settings) : undefined,
+      preferred_locales: preferred_locales ? JSON.stringify(preferred_locales) : undefined,
+      default_source: default_source ? JSON.stringify(default_source) : undefined,
+      deleted: !!deleted,
     }
-  })
-}
+
+    if (customer.deleted) {
+      return prisma[PRISMA_MODEL_NAME].upsert({
+        where: { id: customer.id },
+        create: record,
+        update: record,
+      });
+    } else {
+      return prisma[PRISMA_MODEL_NAME].upsert({
+        where: { id: customer.id },
+        create: record,
+        update: record,
+      });
+    }
+  });
+
+  const results = await Promise.all(upsertPromises);
+
+  return results.flatMap((result) => result) as unknown as Stripe.Customer[]
+};
 
 export const backfillCustomers = async (customerIds: string[]) => {
   const missingCustomerIds = await findMissingEntries(PRISMA_MODEL_NAME, customerIds)

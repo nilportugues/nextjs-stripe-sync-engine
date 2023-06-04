@@ -1,9 +1,9 @@
 import Subscription from 'stripe'
 import { upsertMany } from './database_utils'
+import prisma from '../prisma/client'
 
-import { PrismaClient } from '@prisma/client';
+const PRISMA_MODEL_NAME = 'subscriptionItem'
 
-const prisma = new PrismaClient();
 
 export const upsertSubscriptionItems = async (subscriptionItems: Subscription.SubscriptionItem[]) => {
   const modifiedSubscriptionItems = subscriptionItems.map((subscriptionItem) => {
@@ -21,7 +21,7 @@ export const upsertSubscriptionItems = async (subscriptionItems: Subscription.Su
     }
   })
 
-  await upsertMany('subscriptionItem', modifiedSubscriptionItems)
+  await upsertMany(PRISMA_MODEL_NAME, modifiedSubscriptionItems)
 }
 
 
@@ -29,7 +29,7 @@ export const markDeletedSubscriptionItems = async (
   subscriptionId: string,
   currentSubItemIds: string[]
 ): Promise<{ rowCount: number }> => {
-  const existingItems = await prisma.subscriptionItem.findMany({
+  const existingItems = await prisma[PRISMA_MODEL_NAME].findMany({
     where: {
       subscription: {
         id: subscriptionId
@@ -46,7 +46,7 @@ export const markDeletedSubscriptionItems = async (
     .map(({ id }) => id);
 
   if (deletedIds.length > 0) {
-    await prisma.subscriptionItem.updateMany({
+    await prisma[PRISMA_MODEL_NAME].updateMany({
       where: {
         id: {
           in: deletedIds,

@@ -11,9 +11,7 @@ import { upsertDisputes } from './disputes'
 import { upsertCharges } from './charges'
 import { upsertPaymentIntents } from './payment_intents'
 import { upsertPlans } from './plans'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../prisma/client'
 
 interface Sync {
   synced: number
@@ -272,7 +270,7 @@ export async function syncPaymentMethods(): Promise<{ synced: number }> {
     },
   });
 
-  const customerIds = customers.map((customer: Stripe.Customer) => customer.id);
+  const customerIds: string[] = customers.map((customer: any) => customer.id);
 
   console.log(`Getting payment methods for ${customerIds.length} customers`);
 

@@ -5,6 +5,7 @@ import { markDeletedSubscriptionItems, upsertSubscriptionItems } from './subscri
 import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'
 import Stripe from 'stripe'
 
+const PRISMA_MODEL_NAME = 'subscriptions'
 
 export const upsertSubscriptions = async (
   subscriptions: Subscription.Subscription[]
@@ -14,7 +15,7 @@ export const upsertSubscriptions = async (
   await backfillCustomers(customerIds)
 
   // Run it
-  const rows = await upsertMany('subscriptions', subscriptions)
+  const rows = await upsertMany(PRISMA_MODEL_NAME, subscriptions)
 
   // Upsert subscription items into a separate table
   // need to run after upsert subscription cos subscriptionItems will reference the subscription
@@ -35,7 +36,7 @@ export const upsertSubscriptions = async (
 }
 
 export const backfillSubscriptions = async (subscriptionIds: string[]) => {
-  const missingSubscriptionIds = await findMissingEntries('subscriptions', subscriptionIds)
+  const missingSubscriptionIds = await findMissingEntries(PRISMA_MODEL_NAME, subscriptionIds)
   await fetchAndInsertSubscriptions(missingSubscriptionIds)
 }
 

@@ -2,15 +2,15 @@ import Product from 'stripe'
 import { stripe } from '../utils/StripeClientManager'
 import { findMissingEntries, upsertMany } from './database_utils'
 import Stripe from 'stripe'
-import { PrismaClient } from '@prisma/client'
+import prisma from '../prisma/client'
 
-const prisma = new PrismaClient()
+const PRISMA_MODEL_NAME = 'product'
 
 export const upsertProducts = async (products: Product.Product[]): Promise<Product.Product[]> => {
-  return upsertMany('product', products)
+  return upsertMany(PRISMA_MODEL_NAME, products)
 }
 export const deleteProduct = async (id: string): Promise<boolean> => {
-  const deletedProduct = await prisma.product.delete({
+  const deletedProduct = await prisma[PRISMA_MODEL_NAME].delete({
     where: { id },
     select: { id: true },
   });
@@ -19,7 +19,7 @@ export const deleteProduct = async (id: string): Promise<boolean> => {
 };
 
 export const backfillProducts = async (productids: string[]) => {
-  const missingProductIds = await findMissingEntries('product', productids)
+  const missingProductIds = await findMissingEntries(PRISMA_MODEL_NAME, productids)
   await fetchAndInsertProducts(missingProductIds)
 }
 

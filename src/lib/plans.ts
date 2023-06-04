@@ -1,25 +1,25 @@
 import Stripe from 'stripe'
-import { query } from '../utils/PostgresConnection'
-import { pg as sql } from 'yesql'
-import { getConfig } from '../utils/config'
 import { backfillProducts } from './products'
 import { getUniqueIds, upsertMany } from './database_utils'
+import prisma from '../prisma/client'
 
-const config = getConfig()
+const PRISMA_MODEL_NAME = 'plan'
 
 export const upsertPlans = async (plans: Stripe.Plan[]): Promise<Stripe.Plan[]> => {
   await backfillProducts(getUniqueIds(plans, 'product'))
 
-  return upsertMany('plan', plans)
+  return upsertMany(PRISMA_MODEL_NAME, plans)
 }
 
 export const deletePlan = async (id: string): Promise<boolean> => {
-  
-  const prepared = sql(`
-    delete from "${config.SCHEMA}"."plans" 
-    where id = :id
-    returning id;
-    `)({ id })
-  const { rows } = await query(prepared.text, prepared.values)
-  return rows.length > 0
-}
+  const deletedPlan = await prisma[PRISMA_MODEL_NAME].delete({
+    where: {
+      id: id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return deletedPlan !== null;
+};

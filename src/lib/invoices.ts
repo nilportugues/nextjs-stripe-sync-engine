@@ -5,6 +5,8 @@ import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'
 import Stripe from 'stripe'
 import { stripe } from '../utils/StripeClientManager'
 
+const PRISMA_MODEL_NAME = 'invoice'
+
 
 export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoice.Invoice[]> => {
   await Promise.all([
@@ -12,11 +14,11 @@ export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoi
     backfillSubscriptions(getUniqueIds(invoices, 'subscription')),
   ])
 
-  return upsertMany('invoice', invoices)
+  return upsertMany(PRISMA_MODEL_NAME, invoices)
 }
 
 export const backfillInvoices = async (invoiceIds: string[]) => {
-  const missingInvoiceIds = await findMissingEntries('invoice', invoiceIds)
+  const missingInvoiceIds = await findMissingEntries(PRISMA_MODEL_NAME, invoiceIds)
   await fetchAndInsertInvoices(missingInvoiceIds)
 }
 
