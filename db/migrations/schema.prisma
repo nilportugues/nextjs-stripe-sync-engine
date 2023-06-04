@@ -316,9 +316,13 @@ model Dispute {
   balance_transactions  Json?
   is_charge_refundable  Boolean
   
-   createdAt DateTime @default(now())
+  payment_intent  String?
+    
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-    @@map("stripe.disputes")
+  
+  @@index([created], name: "stripe_dispute_created_idx")
+  @@map("stripe.disputes")
 }
 
 model Event {
