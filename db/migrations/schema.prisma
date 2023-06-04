@@ -1,3 +1,12 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model Product {
   id                  String     @id @default(uuid())
   object              String?
@@ -14,7 +23,8 @@ model Product {
   unit_label          String?
   updated             Int?
   url                 String?
-
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("stripe.products")
 }
 
@@ -41,6 +51,9 @@ model Customer {
   preferred_locales    Json?
   tax_exempt           String?
   invoices      Invoice[]              @relation("invoices_customer")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("stripe.customers")
 }
 
@@ -73,7 +86,8 @@ model Price {
   unit_amount_decimal String?
 
   product             String             @relation("PriceToProduct", fields: [product], references: [id])
-  
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
    @@map("stripe.price")
 }
 
@@ -125,6 +139,9 @@ model Subscriptions {
   plan                     String?              // not yet joined
   
   invoices      Invoice[]              @relation("invoices_subscription")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   @@map("stripe.subscriptions")
 }
@@ -204,6 +221,8 @@ model Invoice {
   on_behalf_of              String?                // Not yet implemented
   charge                    String?                // Not yet implemented
   
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
     @@map("stripe.invoices")
 }
 
@@ -249,6 +268,8 @@ model Charge {
   statement_description String?
   payment_method_details Json?
   
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("stripe.charges")
 }
 
@@ -271,6 +292,8 @@ model Coupon {
   duration_in_months    BigInt
   percent_off_precise   Float
   
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("stripe.coupons")
 }
 
@@ -291,6 +314,8 @@ model Dispute {
   balance_transactions  Json?
   is_charge_refundable  Boolean
   
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
     @@map("stripe.disputes")
 }
 
@@ -306,6 +331,8 @@ model Event {
   api_version      String
   pending_webhooks BigInt
   
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
       @@map("stripe.events")
 }
 
@@ -339,7 +366,8 @@ model Payout {
   statement_description     String
   failure_balance_transaction String
   
-  
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
       @@map("stripe.payouts")
 }
 
@@ -367,7 +395,8 @@ model Plan {
   trial_period_days    Int?
   statement_descriptor String?
   statement_description String?
-  
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
         @@map("stripe.plans")
 }
 
