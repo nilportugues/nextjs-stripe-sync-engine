@@ -436,3 +436,17 @@ model SetupIntent {
   
   @@map("stripe.setup_intent")
 }
+
+model PaymentMethod {
+  id               String     @id @map("id")
+  object           String    
+  created          Int        
+  customer         String     
+  type             String     
+  billing_details  Json       
+  metadata         Json       
+  card             Json       
+
+  @@index([customer], name: "stripe_payment_methods_customer_idx")
+  @@map("stripe.payment_methods")
+}
