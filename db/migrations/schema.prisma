@@ -223,6 +223,9 @@ model Invoice {
   
    createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@index([customer], name: "stripe_invoices_customer_idx")
+  @@index([subscription], name: "stripe_invoices_subscription_idx")
     @@map("stripe.invoices")
 }
 
