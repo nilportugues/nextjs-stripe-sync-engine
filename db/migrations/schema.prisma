@@ -380,13 +380,12 @@ model Payout {
 model Plan {
   id                   String         @id
   object               String?
-  name                 String?
-  tiers                Json?          // Replace 'jsonb' with 'Json'
+ 
   active               Boolean?
   amount               Int?
   created              Int?
   product              String?
-  updated              Int?
+
   currency             String?
   interval             String?
   livemode             Boolean?
@@ -399,8 +398,7 @@ model Plan {
   aggregate_usage      String?
   transform_usage      String?
   trial_period_days    Int?
-  statement_descriptor String?
-  statement_description String?
+ 
    createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
         @@map("stripe.plans")
