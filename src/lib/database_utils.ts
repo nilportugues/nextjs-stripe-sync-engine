@@ -4,23 +4,37 @@ import prisma from '../prisma/client'
 type TableKeys = keyof Omit<PrismaClient, 'disconnect' | 'connect' | 'executeRaw' | 'queryRaw' | 'transaction' | 'on'>
 export type Table = TableKeys
 
+export const removeNulls = <T>(entry: T) => {
+  
+  let newEntry = {...entry} as T
+
+  Object.keys(newEntry as & Record<string, any>).forEach((key) => {
+    if ((newEntry as any)[key] === null) {
+      (newEntry as any)[key] = undefined;
+    }
+  });
+
+  return newEntry
+}
 
 export const upsertMany = async <T>(
   table: Table,
   entries: T[]
 ): Promise<T[]> => {
 
-  const upsertPromises = entries.map((entry: any) =>
-    (prisma[table] as any).upsert({
-      where: { id: entry.id },
-      create: entry,
-      update: entry,
+  const upsertPromises = entries.map((entry: T) => {
+    const mappedEntry = removeNulls(entry);
+
+    return (prisma[table] as any).upsert({
+      where: { id: (mappedEntry as any).id},
+      create: mappedEntry,
+      update: mappedEntry,
     })
-  );
+  });
 
   const results = await Promise.all(upsertPromises);
 
-  return results.flatMap((result) => result);
+  return results.flatMap((result) => result) as T[];
 };
 
 export const findMissingEntries = async (table: Table, ids: string[]): Promise<string[]> => {

@@ -12,11 +12,13 @@ model Product {
   object               String?
   active               Boolean?
   description          String?
+  type                 String?
   metadata             Json?
   name                 String?
   created              Int?
   images               Json?
   livemode             Boolean?
+  attributes           String[]
   package_dimensions   Json?
   shippable            Boolean?
   statement_descriptor String?
@@ -56,7 +58,7 @@ model Customer {
   deleted               Boolean         @default(false)
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
-  Subscriptions         Subscriptions[]
+  subscriptions         Subscriptions[]
 
   @@map("stripe.customers")
 }
@@ -72,7 +74,7 @@ enum PricingTiers {
 }
 
 model Price {
-  id                  String       @id
+  id                  String        @id
   object              String
   active              Boolean
   currency            String
@@ -85,7 +87,7 @@ model Price {
   created             Int
   livemode            Boolean
   lookup_key          String?
-  tiers_mode          PricingTiers
+  tiers_mode          PricingTiers?
   transform_quantity  Json?
   unit_amount_decimal String?
 
@@ -93,7 +95,7 @@ model Price {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   productId        String?
-  SubscriptionItem SubscriptionItem[]
+  subscriptionItem SubscriptionItem[]
 
   @@map("stripe.price")
 }
@@ -150,7 +152,7 @@ model Subscriptions {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   customerId       String
-  SubscriptionItem SubscriptionItem[]
+  subscriptionItem SubscriptionItem[]
 
   @@map("stripe.subscriptions")
 }

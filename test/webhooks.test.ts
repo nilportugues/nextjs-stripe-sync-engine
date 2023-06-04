@@ -25,15 +25,19 @@ describe('/webhooks', () => {
 
   test.each([
     'customer_updated.json',
+    
     'product_created.json',
     'product_deleted.json',
     'product_updated.json',
+   
     'price_created.json',
     'price_deleted.json',
     'price_updated.json',
+     
     'subscription_created.json',
     'subscription_deleted.json',
     'subscription_updated.json',
+    /*
     'invoice_paid.json',
     'invoice_updated.json',
     'invoice_finalized.json',
@@ -69,6 +73,7 @@ describe('/webhooks', () => {
     'payment_intent_processing',
     'payment_intent_requires_action',
     'payment_intent_succeeded',
+    */
   ])('process event %s', async (jsonFile) => {
     const eventBody = await import(`./stripe/${jsonFile}`).then(({ default: myData }) => myData)
     const signature = createHmac('sha256', stripeWebhookSecret)

@@ -7,6 +7,7 @@ import prisma from '../prisma/client'
 const PRISMA_MODEL_NAME = 'product'
 
 export const upsertProducts = async (products: Product.Product[]): Promise<Product.Product[]> => {
+
   return upsertMany(PRISMA_MODEL_NAME, products)
 }
 export const deleteProduct = async (id: string): Promise<boolean> => {

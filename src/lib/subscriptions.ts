@@ -14,8 +14,12 @@ export const upsertSubscriptions = async (
 
   await backfillCustomers(customerIds)
 
+  const mapped = subscriptions.map(async (subscription) => {
+    return {...subscription, customer: { connect: { id: subscription.customer }}}
+  });
+
   // Run it
-  const rows = await upsertMany(PRISMA_MODEL_NAME, subscriptions)
+  const rows = await upsertMany(PRISMA_MODEL_NAME, mapped) as unknown as Subscription.Subscription[]
 
   // Upsert subscription items into a separate table
   // need to run after upsert subscription cos subscriptionItems will reference the subscription

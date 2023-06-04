@@ -8,9 +8,13 @@ const PRISMA_MODEL_NAME = 'customer'
 
 export const upsertCustomers = async (customers: Stripe.Customer[]) => {
 
-  const upsertPromises = customers.map((customer) => {
+  const upsertPromises = customers.map(async (customer) => {
 
-    const {address, metadata, shipping, discount, invoice_settings, preferred_locales, default_source, deleted, ...data} = customer
+    //remove fields
+    const { sources, tax_ids, subscriptions, ...keepData} = customer
+
+    //fields to format as JSON
+    const { address, metadata, shipping, discount, invoice_settings, preferred_locales, default_source, deleted, ...data} = keepData
 
     const record = {
       ...data,

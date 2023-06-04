@@ -1,5 +1,5 @@
 import Subscription from 'stripe'
-import { upsertMany } from './database_utils'
+import { removeNulls, upsertMany } from './database_utils'
 import prisma from '../prisma/client'
 
 const PRISMA_MODEL_NAME = 'subscriptionItem'
@@ -14,7 +14,7 @@ export const upsertSubscriptionItems = async (subscriptionItems: Subscription.Su
     // quantity not exist on volume tier item
     const quantity = subscriptionItem.quantity
     return {
-      ...subscriptionItem,
+      ...removeNulls(subscriptionItem),
       price: priceId,
       deleted: deleted ?? false,
       quantity: quantity ?? null,

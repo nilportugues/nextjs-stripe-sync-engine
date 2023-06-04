@@ -3,7 +3,6 @@ import autoload from '@fastify/autoload'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import path from 'path'
-import { errorSchema } from './schemas/error'
 
 interface buildOpts extends FastifyServerOptions {
   exposeDocs?: boolean
@@ -52,11 +51,7 @@ export async function createServer(opts: buildOpts = {}): Promise<FastifyInstanc
     }
   })
 
-  /**
-   * Add common schemas
-   */
-  app.addSchema(errorSchema)
-
+ 
   /**
    * Expose all routes in './routes'
    */
