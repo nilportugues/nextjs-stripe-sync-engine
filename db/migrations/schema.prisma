@@ -17,3 +17,29 @@ model Product {
 
   @@map("stripe.products")
 }
+
+model Customer {
+  id                   String       @id @default(cuid())
+  object               String?
+  address              Json?
+  description          String?
+  email                String?
+  metadata             Json?
+  name                 String?
+  phone                String?
+  shipping             Json?
+  balance              Int?
+  created              Int?
+  currency             String?
+  default_source       String?
+  delinquent           Boolean?
+  discount             Json?
+  invoice_prefix       String?
+  invoice_settings     Json?
+  livemode             Boolean?
+  next_invoice_sequence Int?
+  preferred_locales    Json?
+  tax_exempt           String?
+
+  @@map("stripe.customers")
+}
