@@ -232,7 +232,7 @@ model Invoice {
 model Charge {
   id                     String        @id @default(dbgenerated()) @db.VarChar(255)
   object                 String?
-  card                   Json?
+ 
   paid                   Boolean?
   order                  String?
   amount                 BigInt?
@@ -268,7 +268,6 @@ model Charge {
   source_transfer        String?
   balance_transaction    String?
   statement_descriptor   String?
-  statement_description String?
   payment_method_details Json?
   
   createdAt DateTime @default(now())
