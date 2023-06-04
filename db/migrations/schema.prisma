@@ -416,3 +416,23 @@ model SubscriptionItem {
   
           @@map("stripe.subscription_items")
 }
+
+model SetupIntent {
+  id                  String    @id @default(uuid())
+  object              String?
+  created             Int?
+  customer            String?
+  description         String?
+  payment_method      String?
+  status              String?
+  usage               String?
+  cancellation_reason String?
+  latest_attempt      String?
+  mandate             String?
+  single_use_mandate  String?
+  on_behalf_of        String?
+
+  @@index([customer], name: "setup_intents_customer_idx")
+  
+  @@map("stripe.setup_intent")
+}
