@@ -14,7 +14,7 @@ export const removeNulls = <T>(entry: T) => {
     }
   });
 
-  return newEntry
+  return JSON.parse(JSON.stringify(newEntry))
 }
 
 export const upsertMany = async <T>(
@@ -22,6 +22,7 @@ export const upsertMany = async <T>(
   entries: T[]
 ): Promise<T[]> => {
 
+  console.log(`--------> UPSERTING ${table} <--------`)
   const upsertPromises = entries.map((entry: T) => {
     const mappedEntry = removeNulls(entry);
 

@@ -24,6 +24,7 @@ describe('/webhooks', () => {
   })
 
   test.each([
+     
     'customer_updated.json',
     
     'product_created.json',
@@ -34,37 +35,48 @@ describe('/webhooks', () => {
     'price_deleted.json',
     'price_updated.json',
      
-    'subscription_created.json',
-    'subscription_deleted.json',
-    'subscription_updated.json',
-    /*
+    'plan_created',
+    'plan_deleted',
+    'plan_updated',
+
     'invoice_paid.json',
     'invoice_updated.json',
     'invoice_finalized.json',
+    
+    /*    
+ 
+ 
+    'subscription_created.json',
+    'subscription_deleted.json',
+    'subscription_updated.json',
+   
+   
     'charge_captured.json',
     'charge_expired.json',
     'charge_failed.json',
+
     'charge_pending.json',
     'charge_refunded.json',
     'charge_succeeded.json',
     'charge_updated.json',
+
     'setup_intent_canceled.json',
     'setup_intent_created.json',
     'setup_intent_requires_action.json',
     'setup_intent_setup_failed.json',
     'setup_intent_succeeded.json',
+
     'payment_method_attached.json',
     'payment_method_automatically_updated.json',
     'payment_method_detached.json',
     'payment_method_updated.json',
+    
     'charge_dispute_closed',
     'charge_dispute_created',
     'charge_dispute_funds_reinstated',
     'charge_dispute_funds_withdrawn',
     'charge_dispute_updated',
-    'plan_created',
-    'plan_deleted',
-    'plan_updated',
+  
     'payment_intent_amount_capturable_updated',
     'payment_intent_canceled',
     'payment_intent_created',
@@ -89,6 +101,7 @@ describe('/webhooks', () => {
       payload: eventBody,
     })
 
+    
     const json = JSON.parse(response.body)
     if (json.error) {
       console.log('error: ', json.message)

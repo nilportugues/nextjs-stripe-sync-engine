@@ -1,7 +1,8 @@
 import { stripe } from '../utils/StripeClientManager'
 import Stripe from 'stripe'
-import { findMissingEntries } from './database_utils'
+import { findMissingEntries, getUniqueIds } from './database_utils'
 import prisma from '../prisma/client'
+import { backfillSubscriptions } from './subscriptions'
 
 const PRISMA_MODEL_NAME = 'customer'
 
@@ -44,6 +45,7 @@ export const upsertCustomers = async (customers: Stripe.Customer[]) => {
   });
 
   const results = await Promise.all(upsertPromises);
+
 
   return results.flatMap((result) => result) as unknown as Stripe.Customer[]
 };

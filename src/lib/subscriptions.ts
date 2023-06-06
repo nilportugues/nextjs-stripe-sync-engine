@@ -14,8 +14,15 @@ export const upsertSubscriptions = async (
 
   await backfillCustomers(customerIds)
 
-  const mapped = subscriptions.map(async (subscription) => {
-    return {...subscription, customer: { connect: { id: subscription.customer }}}
+  const mapped = subscriptions.map((subscription) => {
+    const {plan, ...data} = subscription as any
+
+    return {
+      ...data, 
+      items: JSON.stringify(subscription.items),  
+      customer: { connect: { id: subscription.customer }},
+
+    }
   });
 
   // Run it

@@ -9,12 +9,30 @@ const PRISMA_MODEL_NAME = 'invoice'
 
 
 export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoice.Invoice[]> => {
-  await Promise.all([
-    backfillCustomers(getUniqueIds(invoices, 'customer')),
-    backfillSubscriptions(getUniqueIds(invoices, 'subscription')),
-  ])
 
-  return upsertMany(PRISMA_MODEL_NAME, invoices)
+  //Cannot be done in parallel. Subscriptions depend on customers.
+  await backfillCustomers(getUniqueIds(invoices, 'customer'))
+  await backfillSubscriptions(getUniqueIds(invoices, 'subscription'))
+
+ 
+  const mappedInvoices = invoices.map((invoice) => {
+    return {
+      ...invoice,
+      customer: {
+        connect: {
+          id: invoice.customer,
+        },
+      },
+     
+      subscription: {
+        connect: {
+          id: invoice.subscription,
+        },
+      }
+    }
+  })
+
+  return upsertMany(PRISMA_MODEL_NAME, mappedInvoices as any)
 }
 
 export const backfillInvoices = async (invoiceIds: string[]) => {

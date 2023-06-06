@@ -6,6 +6,9 @@ const PRISMA_MODEL_NAME = 'subscriptionItem'
 
 
 export const upsertSubscriptionItems = async (subscriptionItems: Subscription.SubscriptionItem[]) => {
+
+
+
   const modifiedSubscriptionItems = subscriptionItems.map((subscriptionItem) => {
     // Modify price object to string id; reference prices table
     const priceId = subscriptionItem.price.id.toString()
@@ -13,11 +16,21 @@ export const upsertSubscriptionItems = async (subscriptionItems: Subscription.Su
     const deleted = subscriptionItem.deleted
     // quantity not exist on volume tier item
     const quantity = subscriptionItem.quantity
+
     return {
-      ...removeNulls(subscriptionItem),
-      price: priceId,
+      ...removeNulls(subscriptionItem),      
+      subscription: {
+        connect: {id:  subscriptionItem.subscription}
+      },
+      price: {
+        connect: {id: priceId}
+      },
       deleted: deleted ?? false,
       quantity: quantity ?? null,
+      plan: {
+        connect: {id:  subscriptionItem.plan.id}
+      }
+     
     }
   })
 
@@ -29,6 +42,7 @@ export const markDeletedSubscriptionItems = async (
   subscriptionId: string,
   currentSubItemIds: string[]
 ): Promise<{ rowCount: number }> => {
+
   const existingItems = await prisma[PRISMA_MODEL_NAME].findMany({
     where: {
       subscription: {

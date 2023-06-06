@@ -143,16 +143,17 @@ model Subscriptions {
   trial_end                         Json?
   trial_start                       Json?
   schedule                          String?
+  quantity                          Int?                @default(1)
   customer                          Customer            @relation(fields: [customerId], references: [id])
   latest_invoice                    String? // not yet joined
   plan                              String? // not yet joined
 
   invoices Invoice[]
 
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  customerId       String
-  subscriptionItem SubscriptionItem[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  customerId        String
+  subscriptionItems SubscriptionItem[]
 
   @@map("stripe.subscriptions")
 }
@@ -174,6 +175,8 @@ model Invoice {
   description                      String?
   hosted_invoice_url               String?
   lines                            Json?
+  automatic_tax                    Json?
+  paid_out_of_band                 Boolean
   metadata                         Json?
   period_end                       Int?
   period_start                     Int?
@@ -403,6 +406,7 @@ model Plan {
 
   currency          String?
   interval          String?
+  amount_decimal    String?
   livemode          Boolean?
   metadata          Json? // Replace 'jsonb' with 'Json'
   nickname          String?
@@ -414,8 +418,9 @@ model Plan {
   transform_usage   String?
   trial_period_days Int?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  SubscriptionItem SubscriptionItem[]
 
   @@map("stripe.plans")
 }
@@ -430,9 +435,11 @@ model SubscriptionItem {
   quantity           Int?
   price              Price?         @relation(fields: [priceId], references: [id])
   subscription       Subscriptions? @relation(fields: [subscriptionsId], references: [id])
+  plan               Plan?          @relation(fields: [planId], references: [id])
   tax_rates          Json?
   priceId            String?
   subscriptionsId    String?
+  planId             String?
 
   @@map("stripe.subscription_items")
 }
