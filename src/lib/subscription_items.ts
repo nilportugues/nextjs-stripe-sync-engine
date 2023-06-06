@@ -1,14 +1,18 @@
 import Subscription from 'stripe'
-import { removeNulls, upsertMany } from './database_utils'
+import { getUniqueIds, removeNulls, upsertMany } from './database_utils'
 import prisma from '../prisma/client'
+import { upsertPlans } from './plans'
+import { upsertPrices } from './prices'
 
 const PRISMA_MODEL_NAME = 'subscriptionItem'
 
-
 export const upsertSubscriptionItems = async (subscriptionItems: Subscription.SubscriptionItem[]) => {
-
-
-
+  
+  await Promise.all([
+    upsertPlans(subscriptionItems.map(si => si.plan)),
+    upsertPrices(subscriptionItems.map(si => si.price)),
+  ])
+  
   const modifiedSubscriptionItems = subscriptionItems.map((subscriptionItem) => {
     // Modify price object to string id; reference prices table
     const priceId = subscriptionItem.price.id.toString()
@@ -19,17 +23,11 @@ export const upsertSubscriptionItems = async (subscriptionItems: Subscription.Su
 
     return {
       ...removeNulls(subscriptionItem),      
-      subscription: {
-        connect: {id:  subscriptionItem.subscription}
-      },
-      price: {
-        connect: {id: priceId}
-      },
+      subscription: subscriptionItem.subscription ? { connect: {id:  subscriptionItem.subscription} } : undefined,
+      price: priceId ? { connect: {id: priceId} } : undefined,
       deleted: deleted ?? false,
-      quantity: quantity ?? null,
-      plan: {
-        connect: {id:  subscriptionItem.plan.id}
-      }
+      quantity: quantity ?? undefined,
+      plan: subscriptionItem?.plan ? { connect: {id:  subscriptionItem.plan.id}}: undefined
      
     }
   })

@@ -1,7 +1,8 @@
-import Price from 'stripe'
+import Price, { Stripe } from 'stripe'
 import { backfillProducts } from './products'
-import { getUniqueIds, upsertMany } from './database_utils'
+import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'
 import prisma from '../prisma/client'
+import { stripe } from '../utils/StripeClientManager'
 
 const PRISMA_MODEL_NAME = 'price'
 
@@ -24,3 +25,23 @@ export const deletePrice = async (id: string): Promise<boolean> => {
 
   return !!deletedPrice;
 };
+
+
+
+export const backfillPrices = async (priceIds: string[]) => {
+  const missingPriceIds = await findMissingEntries(PRISMA_MODEL_NAME, priceIds)
+  await fetchAndInsertPrices(missingPriceIds)
+}
+
+export const fetchAndInsertPrices = async (priceIds: string[]) => {
+  if (!priceIds.length) return
+
+  const prices: Stripe.Price[] = []
+
+  for (const priceId of priceIds) {
+    const price = await stripe.prices.retrieve(priceId)
+    prices.push(price as Stripe.Price)
+  }
+
+  await upsertPrices(prices)
+}

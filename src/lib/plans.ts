@@ -1,7 +1,8 @@
 import Stripe from 'stripe'
 import { backfillProducts } from './products'
-import { getUniqueIds, upsertMany } from './database_utils'
+import { findMissingEntries, getUniqueIds, upsertMany } from './database_utils'
 import prisma from '../prisma/client'
+import { stripe } from '../utils/StripeClientManager'
 
 const PRISMA_MODEL_NAME = 'plan'
 
@@ -23,3 +24,23 @@ export const deletePlan = async (id: string): Promise<boolean> => {
 
   return deletedPlan !== null;
 };
+
+
+
+export const backfillPlans = async (planIds: string[]) => {
+  const missingPlanIds = await findMissingEntries(PRISMA_MODEL_NAME, planIds)
+  await fetchAndInsertPlans(missingPlanIds)
+}
+
+export const fetchAndInsertPlans = async (planIds: string[]) => {
+  if (!planIds.length) return
+
+  const plans: Stripe.Plan[] = []
+
+  for (const planId of planIds) {
+    const p = await stripe.plans.retrieve(planId)
+    plans.push(p as Stripe.Plan)
+  }
+
+  await upsertPlans(plans)
+}

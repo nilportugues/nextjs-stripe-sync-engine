@@ -43,34 +43,37 @@ describe('/webhooks', () => {
     'invoice_updated.json',
     'invoice_finalized.json',
     
-    /*    
- 
- 
-    'subscription_created.json',
-    'subscription_deleted.json',
-    'subscription_updated.json',
-   
-   
-    'charge_captured.json',
-    'charge_expired.json',
-    'charge_failed.json',
-
-    'charge_pending.json',
-    'charge_refunded.json',
-    'charge_succeeded.json',
-    'charge_updated.json',
-
     'setup_intent_canceled.json',
     'setup_intent_created.json',
     'setup_intent_requires_action.json',
     'setup_intent_setup_failed.json',
     'setup_intent_succeeded.json',
 
+    'charge_captured.json',
+    'charge_expired.json',
+    'charge_failed.json',
+
+    'subscription_created.json',
+    'subscription_deleted.json',
+    'subscription_updated.json',
+
     'payment_method_attached.json',
     'payment_method_automatically_updated.json',
     'payment_method_detached.json',
     'payment_method_updated.json',
-    
+   
+    /*    
+ 
+    'charge_pending.json',
+    'charge_refunded.json',
+    'charge_succeeded.json',
+    'charge_updated.json',
+
+    'payment_method_attached.json',
+    'payment_method_automatically_updated.json',
+    'payment_method_detached.json',
+    'payment_method_updated.json',
+
     'charge_dispute_closed',
     'charge_dispute_created',
     'charge_dispute_funds_reinstated',

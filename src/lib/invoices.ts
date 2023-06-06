@@ -10,11 +10,13 @@ const PRISMA_MODEL_NAME = 'invoice'
 
 export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoice.Invoice[]> => {
 
-  //Cannot be done in parallel. Subscriptions depend on customers.
+  //Cannot be done in parallel. This is not an error, subscriptions may fail on first run.
+  await backfillSubscriptions(getUniqueIds(invoices, 'subscription')).catch(_ => {})
   await backfillCustomers(getUniqueIds(invoices, 'customer'))
-  await backfillSubscriptions(getUniqueIds(invoices, 'subscription'))
 
- 
+  //But those failed will be backfilled here and guarantee consistency.
+  await backfillSubscriptions(getUniqueIds(invoices, 'subscription'))
+  
   const mappedInvoices = invoices.map((invoice) => {
     return {
       ...invoice,
