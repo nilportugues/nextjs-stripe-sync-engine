@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server'
  
 import getConfig from 'next/config'
-import {stripe} from '../../../src/utils/StripeClientManager'
+import {stripe} from '../../../utils/StripeClientManager'
 import Stripe from 'stripe';
 
 const config = getConfig();
