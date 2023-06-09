@@ -12,25 +12,6 @@ export async function createServer(opts: buildOpts = {}): Promise<FastifyInstanc
   const app = fastify(opts)
 
   /**
-   * Expose swagger docs
-   */
-  if (opts.exposeDocs) {
-    await app.register(fastifySwagger, {
-      mode: 'dynamic',
-      swagger: {
-        info: {
-          title: 'Stripe Sync Engine',
-          version: '0.0.1',
-        },
-      },
-    })
-
-    await app.register(fastifySwaggerUi, {
-      routePrefix: '/docs',
-    })
-  }
-
-  /**
    * Add a content parser for stripe webhooks
    */
   app.addContentTypeParser('application/json', { parseAs: 'buffer' }, (req, body, done) => {

@@ -275,6 +275,7 @@ model Charge {
   receipt_email                   String?
   payment_intent                  String?
   receipt_number                  String?
+  receipt_url                     String?
   transfer_group                  String?
   amount_refunded                 BigInt?
   application_fee                 String?
@@ -328,7 +329,7 @@ model Dispute {
   reason               String?
   status               String?
   created              Int
-  updated              Int
+  updated              Int?
   currency             String?
   evidence             Json
   livemode             Boolean

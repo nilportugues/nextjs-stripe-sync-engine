@@ -62,24 +62,6 @@ describe('/webhooks', () => {
     'payment_method_detached.json',
     'payment_method_updated.json',
    
-    /*    
- 
-    'charge_pending.json',
-    'charge_refunded.json',
-    'charge_succeeded.json',
-    'charge_updated.json',
-
-    'payment_method_attached.json',
-    'payment_method_automatically_updated.json',
-    'payment_method_detached.json',
-    'payment_method_updated.json',
-
-    'charge_dispute_closed',
-    'charge_dispute_created',
-    'charge_dispute_funds_reinstated',
-    'charge_dispute_funds_withdrawn',
-    'charge_dispute_updated',
-  
     'payment_intent_amount_capturable_updated',
     'payment_intent_canceled',
     'payment_intent_created',
@@ -88,7 +70,24 @@ describe('/webhooks', () => {
     'payment_intent_processing',
     'payment_intent_requires_action',
     'payment_intent_succeeded',
-    */
+
+    'payment_method_attached.json',
+    'payment_method_automatically_updated.json',
+    'payment_method_detached.json',
+    'payment_method_updated.json',
+
+    'charge_pending.json',
+    'charge_refunded.json',
+    'charge_succeeded.json',
+    'charge_updated.json',
+    
+    
+    'charge_dispute_closed',
+    'charge_dispute_created',
+    'charge_dispute_funds_reinstated',
+    'charge_dispute_funds_withdrawn',
+    'charge_dispute_updated',
+    
   ])('process event %s', async (jsonFile) => {
     const eventBody = await import(`./stripe/${jsonFile}`).then(({ default: myData }) => myData)
     const signature = createHmac('sha256', stripeWebhookSecret)
