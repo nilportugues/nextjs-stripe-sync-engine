@@ -1,22 +1,40 @@
-import { NextResponse, NextRequest } from 'next/server'
- 
-import getConfig from 'next/config'
-import {stripe} from '../../../utils/StripeClientManager'
+import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe';
 
-const config = getConfig();
+import { getConfig } from '../../../utils/config'
+import { stripe } from '../../../utils/StripeClientManager'
+import { upsertCharges } from '../../../lib/charges';
+import { upsertCustomers } from '../../../lib/customers';
+import { upsertSubscriptions } from '../../../lib/subscriptions';
+import { upsertInvoices } from '../../../lib/invoices';
+import { deleteProduct, upsertProducts } from '../../../lib/products';
+import { deletePrice, upsertPrices } from '../../../lib/prices';
+import { deletePlan, upsertPlans } from '../../../lib/plans';
+import { upsertSetupIntents } from '../../../lib/setup_intents';
+import { upsertPaymentMethods } from '../../../lib/payment_methods';
+import { upsertDisputes } from '../../../lib/disputes';
+import { upsertPaymentIntents } from '../../../lib/payment_intents';
+import { NextApiRequest } from 'next';
 
-export default async function POST(req: NextRequest) {
-  const sig = req.headers['stripe-signature'] as string
-  const body: { raw: Buffer } = req.body as { raw: Buffer }
+const appConfig = getConfig();
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
+export async function POST(req: NextApiRequest) {
+
+  const sig = req.headers['stripe-signature'] as string;
+  const buf = req.body
 
   let event
   try {
-    event = stripe.webhooks.constructEvent(body.raw, sig, config.STRIPE_WEBHOOK_SECRET)
-  } catch (err) {
+    event = await stripe.webhooks.constructEvent(buf, sig, appConfig.STRIPE_WEBHOOK_SECRET)
+  } catch (err: any) {
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, {status: 400})
   }
-
 
   switch (event.type) {
     case 'charge.captured':
@@ -96,7 +114,6 @@ export default async function POST(req: NextRequest) {
     case 'setup_intent.setup_failed':
     case 'setup_intent.succeeded': {
       const setupIntent = event.data.object as Stripe.SetupIntent
-
       await upsertSetupIntents([setupIntent])
       break
     }
@@ -105,7 +122,6 @@ export default async function POST(req: NextRequest) {
     case 'payment_method.detached':
     case 'payment_method.updated': {
       const paymentMethod = event.data.object as Stripe.PaymentMethod
-
       await upsertPaymentMethods([paymentMethod])
       break
     }
@@ -116,7 +132,6 @@ export default async function POST(req: NextRequest) {
     case 'charge.dispute.updated':
     case 'charge.dispute.closed': {
       const dispute = event.data.object as Stripe.Dispute
-
       await upsertDisputes([dispute])
       break
     }
@@ -129,7 +144,6 @@ export default async function POST(req: NextRequest) {
     case 'payment_intent.requires_action':
     case 'payment_intent.succeeded': {
       const paymentIntent = event.data.object as Stripe.PaymentIntent
-
       await upsertPaymentIntents([paymentIntent])
       break
     }
