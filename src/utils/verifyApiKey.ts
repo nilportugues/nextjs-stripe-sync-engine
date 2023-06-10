@@ -1,19 +1,17 @@
-import { FastifyReply, FastifyRequest, HookHandlerDoneFunction } from 'fastify'
 import { getConfig } from './config'
+import { NextRequest } from 'next/server'
 
 const config = getConfig()
 
-export const verifyApiKey = (
-  request: FastifyRequest,
-  reply: FastifyReply,
-  done: HookHandlerDoneFunction
-): unknown => {
-  if (!request.headers || !request.headers.authorization) {
-    return reply.code(401).send('Unauthorized')
+export const verifyApiKey = (request: NextRequest): { code: number, data: string|null} => {
+  
+  if (!request.headers || !request.headers.get('Authorization')) {
+    return { code: 401, data: 'Unauthorized'}
   }
-  const { authorization } = request.headers
+  const authorization = request.headers.get('Authorization')
   if (authorization !== config.API_KEY) {
-    return reply.code(401).send('Unauthorized')
+    return { code: 401, data: 'Unauthorized'}
   }
-  done()
+
+  return {code: 200, data: null}
 }
