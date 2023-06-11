@@ -1,46 +1,44 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
 import prisma from '../prisma/client'
 
-type TableKeys = keyof Omit<PrismaClient, 'disconnect' | 'connect' | 'executeRaw' | 'queryRaw' | 'transaction' | 'on'>
+type TableKeys = keyof Omit<
+  PrismaClient,
+  'disconnect' | 'connect' | 'executeRaw' | 'queryRaw' | 'transaction' | 'on'
+>
 export type Table = TableKeys
 
 export const removeNulls = <T>(entry: T) => {
-  
-  let newEntry = {...entry} as T
+  let newEntry = { ...entry } as T
 
-  Object.keys(newEntry as & Record<string, any>).forEach((key) => {
+  Object.keys(newEntry as Record<string, any>).forEach((key) => {
     if ((newEntry as any)[key] === null) {
-      (newEntry as any)[key] = undefined;
+      ;(newEntry as any)[key] = undefined
     }
-  });
+  })
 
   return JSON.parse(JSON.stringify(newEntry))
 }
 
-export const upsertMany = async <T>(
-  table: Table,
-  entries: T[]
-): Promise<T[]> => {
-
+export const upsertMany = async <T>(table: Table, entries: T[]): Promise<T[]> => {
   console.log(`--------> UPSERTING ${table} <--------`)
   const upsertPromises = entries.map((entry: T) => {
-    const mappedEntry = removeNulls(entry);
+    const mappedEntry = removeNulls(entry)
 
     return (prisma[table] as any).upsert({
-      where: { id: (mappedEntry as any).id},
+      where: { id: (mappedEntry as any).id },
       create: mappedEntry,
       update: mappedEntry,
     })
-  });
+  })
 
-  const results = await Promise.all(upsertPromises);
+  const results = await Promise.all(upsertPromises)
 
-  return results.flatMap((result) => result) as T[];
-};
+  return results.flatMap((result) => result) as T[]
+}
 
 export const findMissingEntries = async (table: Table, ids: string[]): Promise<string[]> => {
-  if (!ids.length) return [];
- 
+  if (!ids.length) return []
+
   const existingIds = await (prisma[table] as any)!.findMany({
     where: {
       id: {
@@ -50,20 +48,18 @@ export const findMissingEntries = async (table: Table, ids: string[]): Promise<s
     select: {
       id: true,
     },
-  });
+  })
 
-  const existingIdSet = new Set(existingIds.map((it: any) => it.id));
-  const missingIds = ids.filter((it) => !existingIdSet.has(it));
+  const existingIdSet = new Set(existingIds.map((it: any) => it.id))
+  const missingIds = ids.filter((it) => !existingIdSet.has(it))
 
-  return missingIds;
-};
+  return missingIds
+}
 
 export const getUniqueIds = <T>(entries: T[], key: keyof T): string[] => {
   const set = new Set(
-    entries
-      .map((entry) => entry?.[key]?.toString())
-      .filter((it): it is string => Boolean(it))
-  );
+    entries.map((entry) => entry?.[key]?.toString()).filter((it): it is string => Boolean(it))
+  )
 
-  return Array.from(set);
-};
+  return Array.from(set)
+}

@@ -7,17 +7,16 @@ import prisma from '../prisma/client'
 const PRISMA_MODEL_NAME = 'product'
 
 export const upsertProducts = async (products: Product.Product[]): Promise<Product.Product[]> => {
-
   return upsertMany(PRISMA_MODEL_NAME, products)
 }
 export const deleteProduct = async (id: string): Promise<boolean> => {
   const deletedProduct = await prisma[PRISMA_MODEL_NAME].delete({
     where: { id },
     select: { id: true },
-  });
+  })
 
-  return deletedProduct !== null;
-};
+  return deletedProduct !== null
+}
 
 export const backfillProducts = async (productids: string[]) => {
   const missingProductIds = await findMissingEntries(PRISMA_MODEL_NAME, productids)

@@ -1,10 +1,11 @@
+import Stripe from 'stripe'
+import { stripe } from '../utils/StripeClientManager'
+
 import { upsertProducts } from './products'
 import { upsertPrices } from './prices'
 import { upsertSubscriptions } from './subscriptions'
 import { upsertInvoices } from './invoices'
 import { upsertCustomers } from './customers'
-import { stripe } from '../utils/StripeClientManager'
-import Stripe from 'stripe'
 import { upsertSetupIntents } from './setup_intents'
 import { upsertPaymentMethods } from './payment_methods'
 import { upsertDisputes } from './disputes'
@@ -57,40 +58,40 @@ export async function syncSingleEntity(stripeId: string) {
 
       return upsertCustomers([it])
     })
-  } 
-  
+  }
+
   if (stripeId.startsWith('in_')) {
     return stripe.invoices.retrieve(stripeId).then((it) => upsertInvoices([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('price_')) {
     return stripe.prices.retrieve(stripeId).then((it) => upsertPrices([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('prod_')) {
     return stripe.products.retrieve(stripeId).then((it) => upsertProducts([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('sub_')) {
     return stripe.subscriptions.retrieve(stripeId).then((it) => upsertSubscriptions([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('seti_')) {
     return stripe.setupIntents.retrieve(stripeId).then((it) => upsertSetupIntents([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('pm_')) {
     return stripe.paymentMethods.retrieve(stripeId).then((it) => upsertPaymentMethods([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('dp_') || stripeId.startsWith('du_')) {
     return stripe.disputes.retrieve(stripeId).then((it) => upsertDisputes([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('ch_')) {
     return stripe.charges.retrieve(stripeId).then((it) => upsertCharges([it]))
-  } 
-  
+  }
+
   if (stripeId.startsWith('pi_')) {
     return stripe.paymentIntents.retrieve(stripeId).then((it) => upsertPaymentIntents([it]))
   }
@@ -255,9 +256,8 @@ export async function syncPaymentIntents(created?: Stripe.RangeQueryParam): Prom
   return fetchAndUpsert(() => stripe.paymentIntents.list(params), upsertPaymentIntents)
 }
 
-
 export async function syncPaymentMethods(): Promise<{ synced: number }> {
-  console.log('Syncing payment methods');
+  console.log('Syncing payment methods')
 
   const customers = await prisma.customer.findMany({
     where: {
@@ -268,13 +268,13 @@ export async function syncPaymentMethods(): Promise<{ synced: number }> {
     select: {
       id: true,
     },
-  });
+  })
 
-  const customerIds: string[] = customers.map((customer: any) => customer.id);
+  const customerIds: string[] = customers.map((customer: any) => customer.id)
 
-  console.log(`Getting payment methods for ${customerIds.length} customers`);
+  console.log(`Getting payment methods for ${customerIds.length} customers`)
 
-  let synced = 0;
+  let synced = 0
 
   for (const customerId of customerIds) {
     const syncResult = await fetchAndUpsert(() => {
@@ -284,13 +284,13 @@ export async function syncPaymentMethods(): Promise<{ synced: number }> {
       return stripe.paymentMethods.list({
         limit: 100,
         customer: customerId,
-      });
-    }, upsertPaymentMethods);
+      })
+    }, upsertPaymentMethods)
 
-    synced += syncResult.synced;
+    synced += syncResult.synced
   }
 
-  return { synced };
+  return { synced }
 }
 
 export async function syncDisputes(created?: Stripe.RangeQueryParam): Promise<Sync> {

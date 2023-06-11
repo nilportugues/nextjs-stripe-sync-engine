@@ -1,7 +1,7 @@
 {
-  "name": "stripe-sync-engine",
+  "name": "nextjs-stripe-sync-engine",
   "version": "0.0.0",
-  "description": "Stripe sync engine. Sync your Stripe account to your Postgres database.",
+  "description": "Stripe sync engine. Sync your Stripe account to your Prisma compatible database.",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -24,7 +24,7 @@
     "db:migrate:reset": "prisma format; prisma generate; prisma migrate reset",
     "db:seed": "prisma format; prisma generate; prisma db seed"
   },
-  "author": "Supabase",
+  "author": "Nil Portugués Calderó",
   "license": "MIT",
   "engines": {
     "node": ">= 14.0.0"

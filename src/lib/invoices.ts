@@ -7,16 +7,14 @@ import { stripe } from '../utils/StripeClientManager'
 
 const PRISMA_MODEL_NAME = 'invoice'
 
-
 export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoice.Invoice[]> => {
-
   //Cannot be done in parallel. This is not an error, subscriptions may fail on first run.
-  await backfillSubscriptions(getUniqueIds(invoices, 'subscription')).catch(_ => {})
+  await backfillSubscriptions(getUniqueIds(invoices, 'subscription')).catch((_) => {})
   await backfillCustomers(getUniqueIds(invoices, 'customer'))
 
   //But those failed will be backfilled here and guarantee consistency.
   await backfillSubscriptions(getUniqueIds(invoices, 'subscription'))
-  
+
   const mappedInvoices = invoices.map((invoice) => {
     return {
       ...invoice,
@@ -25,12 +23,12 @@ export const upsertInvoices = async (invoices: Invoice.Invoice[]): Promise<Invoi
           id: invoice.customer,
         },
       },
-     
+
       subscription: {
         connect: {
           id: invoice.subscription,
         },
-      }
+      },
     }
   })
 

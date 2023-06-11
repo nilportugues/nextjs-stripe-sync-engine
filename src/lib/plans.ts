@@ -20,12 +20,10 @@ export const deletePlan = async (id: string): Promise<boolean> => {
     select: {
       id: true,
     },
-  });
+  })
 
-  return deletedPlan !== null;
-};
-
-
+  return deletedPlan !== null
+}
 
 export const backfillPlans = async (planIds: string[]) => {
   const missingPlanIds = await findMissingEntries(PRISMA_MODEL_NAME, planIds)

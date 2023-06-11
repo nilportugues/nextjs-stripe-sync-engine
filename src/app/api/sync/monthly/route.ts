@@ -3,10 +3,10 @@ import { syncBackfill, SyncBackfillParams } from '../../../../lib/sync'
 import { verifyApiKey } from '../../../../utils/verifyApiKey'
 
 export async function POST(req: NextRequest) {
-  const {code, data} = await verifyApiKey(req)
+  const { code, data } = await verifyApiKey(req)
 
   if (code != 200) {
-    return NextResponse.json(data, {status: code})
+    return NextResponse.json(data, { status: code })
   }
 
   const { object } = (req.body as { object?: string }) ?? {}
@@ -19,5 +19,5 @@ export async function POST(req: NextRequest) {
 
   await syncBackfill(params)
 
-  return NextResponse.json({ ts: Date.now(), }, {status: 200})
+  return NextResponse.json({ ts: Date.now() }, { status: 200 })
 }

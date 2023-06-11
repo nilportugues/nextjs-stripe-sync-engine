@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe';
+import Stripe from 'stripe'
 
 import { getConfig } from '../../../utils/config'
 import { stripe } from '../../../utils/StripeClientManager'
-import { upsertCharges } from '../../../lib/charges';
-import { upsertCustomers } from '../../../lib/customers';
-import { upsertSubscriptions } from '../../../lib/subscriptions';
-import { upsertInvoices } from '../../../lib/invoices';
-import { deleteProduct, upsertProducts } from '../../../lib/products';
-import { deletePrice, upsertPrices } from '../../../lib/prices';
-import { deletePlan, upsertPlans } from '../../../lib/plans';
-import { upsertSetupIntents } from '../../../lib/setup_intents';
-import { upsertPaymentMethods } from '../../../lib/payment_methods';
-import { upsertDisputes } from '../../../lib/disputes';
-import { upsertPaymentIntents } from '../../../lib/payment_intents';
-import { NextApiRequest } from 'next';
+import { upsertCharges } from '../../../lib/charges'
+import { upsertCustomers } from '../../../lib/customers'
+import { upsertSubscriptions } from '../../../lib/subscriptions'
+import { upsertInvoices } from '../../../lib/invoices'
+import { deleteProduct, upsertProducts } from '../../../lib/products'
+import { deletePrice, upsertPrices } from '../../../lib/prices'
+import { deletePlan, upsertPlans } from '../../../lib/plans'
+import { upsertSetupIntents } from '../../../lib/setup_intents'
+import { upsertPaymentMethods } from '../../../lib/payment_methods'
+import { upsertDisputes } from '../../../lib/disputes'
+import { upsertPaymentIntents } from '../../../lib/payment_intents'
+import { NextApiRequest } from 'next'
 
-const appConfig = getConfig();
+const appConfig = getConfig()
 
 export const config = {
   api: {
@@ -25,15 +25,14 @@ export const config = {
 }
 
 export async function POST(req: NextApiRequest) {
-
-  const sig = req.headers['stripe-signature'] as string;
+  const sig = req.headers['stripe-signature'] as string
   const buf = req.body
 
   let event
   try {
     event = await stripe.webhooks.constructEvent(buf, sig, appConfig.STRIPE_WEBHOOK_SECRET)
   } catch (err: any) {
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, {status: 400})
+    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
   }
 
   switch (event.type) {

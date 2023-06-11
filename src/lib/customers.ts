@@ -1,21 +1,27 @@
 import { stripe } from '../utils/StripeClientManager'
 import Stripe from 'stripe'
-import { findMissingEntries, getUniqueIds } from './database_utils'
+import { findMissingEntries } from './database_utils'
 import prisma from '../prisma/client'
-import { backfillSubscriptions } from './subscriptions'
 
 const PRISMA_MODEL_NAME = 'customer'
 
-
 export const upsertCustomers = async (customers: Stripe.Customer[]) => {
-
   const upsertPromises = customers.map(async (customer) => {
-
     //remove fields
-    const { sources, tax_ids, subscriptions, ...keepData} = customer
+    const { sources, tax_ids, subscriptions, ...keepData } = customer
 
     //fields to format as JSON
-    const { address, metadata, shipping, discount, invoice_settings, preferred_locales, default_source, deleted, ...data} = keepData
+    const {
+      address,
+      metadata,
+      shipping,
+      discount,
+      invoice_settings,
+      preferred_locales,
+      default_source,
+      deleted,
+      ...data
+    } = keepData
 
     const record = {
       ...data,
@@ -34,21 +40,20 @@ export const upsertCustomers = async (customers: Stripe.Customer[]) => {
         where: { id: customer.id },
         create: record,
         update: record,
-      });
+      })
     } else {
       return prisma[PRISMA_MODEL_NAME].upsert({
         where: { id: customer.id },
         create: record,
         update: record,
-      });
+      })
     }
-  });
+  })
 
-  const results = await Promise.all(upsertPromises);
-
+  const results = await Promise.all(upsertPromises)
 
   return results.flatMap((result) => result) as unknown as Stripe.Customer[]
-};
+}
 
 export const backfillCustomers = async (customerIds: string[]) => {
   const missingCustomerIds = await findMissingEntries(PRISMA_MODEL_NAME, customerIds)

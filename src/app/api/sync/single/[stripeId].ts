@@ -4,15 +4,14 @@ import { NextApiRequest } from 'next'
 import { syncSingleEntity } from '@/src/lib/sync'
 
 export async function POST(req: NextApiRequest) {
+  const { code, data } = verifyApiKey(req as unknown as NextRequest)
 
-    const {code, data} = verifyApiKey(req as unknown as NextRequest)
+  if (code != 200) {
+    return NextResponse.json(data, { status: code })
+  }
 
-    if (code != 200) {
-      return NextResponse.json(data, {status: code})
-    }
+  const stripeId = req.query.stripeId as string
+  const result = await syncSingleEntity(stripeId)
 
-    const stripeId = req.query.stripeId as string
-    const result = await syncSingleEntity(stripeId)
-
-    return NextResponse.json({  ts: Date.now(), data: result })
+  return NextResponse.json({ ts: Date.now(), data: result })
 }
