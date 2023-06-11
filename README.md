@@ -138,10 +138,6 @@ POST /sync/single/cus_12345
 
 The entity type is recognized automatically, based on the prefix.
 
-## Future ideas
-
-- Expose an "initialize" endpoint that will fetch data from Stripe and do an initial load (or perhaps `POST` a CSV to an endpoint).
-
 ## Development
 
 **Set up**
