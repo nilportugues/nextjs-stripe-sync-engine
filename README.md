@@ -1,16 +1,12 @@
-# Stripe Sync Engine (Experimental)
+# Nextjs Prisma Stripe Sync Engine
 
-Continuously synchronizes a Stripe account to a Postgres database.
-
-Note: this is experimental. There are no guarantees that it will be supported in the future.
-
-![Sync Stripe with Postgres](./docs/stripe-sync-engine.jpg)
+Continuously synchronizes a Stripe account to a Prisma-compatible database.
 
 ## Motivation
 
 Sometimes you want to analyze your billing data using SQL. Even more importantly, you want to join your billing data to your product/business data.
 
-This server synchronizes your Stripe account to a Postgres database. It can be a new database, or an existing Postgres database.
+This server synchronizes your Stripe account to a Prisma-compatible database. It can be a new database, or an existing database.
 
 ## How it works
 
@@ -22,10 +18,9 @@ This server synchronizes your Stripe account to a Postgres database. It can be a
 
 **Not implemented**
 
-- This will not do an initial load of existing Stripe data. You should use CSV loads for this. We might implement this in the future.
-- We are progressively working through webhooks.
+- This will not do an initial load of existing Stripe data. You should use CSV loads for this.
 
-## Webhook Progress
+## Supported Webhooks
 
 - [ ] `balance.available`
 - [x] `charge.captured` 🟢
@@ -151,12 +146,13 @@ The entity type is recognized automatically, based on the prefix.
 
 **Set up**
 
-- Create a Postgres database on [supabase.com](https://supabase.com) (or another Postgres provider)
+- Create a database.
 - Update Stripe with all valid webhooks and get the webhook secret
 - `mv .env.sample .env` and then rename all the variables
 
 **Develop**
 
+- `cd docker; docker-compose up` to start local database
 - `npm run dev` to start the local server
 - `npm run test` to run tests
 
@@ -167,16 +163,3 @@ docker build -t stripe-sync-engine .
 docker run -p 8080:8080 stripe-sync-engine
 ```
 
-**Release**
-
-Handled by GitHub actions whenever their is a commit to the `main` branch with `fix` or `feat` in the description.
-
-## License
-
-Apache 2.0
-
-## Sponsors
-
-Supabase is building the features of Firebase using enterprise-grade, open source products. We support existing communities wherever possible, and if the products don’t exist we build them and open source them ourselves.
-
-[![New Sponsor](https://user-images.githubusercontent.com/10214025/90518111-e74bbb00-e198-11ea-8f88-c9e3c1aa4b5b.png)](https://github.com/sponsors/supabase)
