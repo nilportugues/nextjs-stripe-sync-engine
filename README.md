@@ -95,9 +95,7 @@ This server synchronizes your Stripe account to a Prisma-compatible database. It
 - Update your Stripe account with all valid webhooks and get the webhook secret
 - `mv .env.sample .env` and then rename all the variables
 - Make sure the database URL has search_path `stripe`. eg: `DATABASE_URL=postgres://postgres:postgres@hostname:5432/postgres?sslmode=disable&search_path=stripe`
-- Deploy the [docker image](https://hub.docker.com/r/supabase/stripe-sync-engine) to your favourite hosting service and expose port `8080`
-  - eg: `docker run -e PORT=8080 --env-file .env supabase/stripe-sync-engine`
-  - This will automatically run any migrations on your database
+- Deploy the docker image to your favourite hosting service and expose port `8080`
 - Point your Stripe webooks to your deployed app.
 
 ## Backfill from Stripe
