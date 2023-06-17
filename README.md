@@ -1,4 +1,4 @@
-# Nextjs Prisma Stripe Sync Engine
+# Nextjs 13 Prisma Stripe Sync Engine
 
 Continuously synchronizes a Stripe account to a Prisma-compatible database.
 
