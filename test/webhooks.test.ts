@@ -98,7 +98,7 @@ describe('/webhooks/stripe', () => {
       .update(`${unixtime}.${JSON.stringify(eventBody)}`, 'utf8')
       .digest('hex')
    
-    req.url = `/webhooks`
+    req.url = `/webhooks/stripe`
     req.headers = { 'stripe-signature': `t=${unixtime},v1=${signature},v0=ff` }
     req.body = await Buffer.from(JSON.stringify(eventBody), 'utf8')
 
