@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-
+import { headers } from "next/headers"
 import { getConfig } from '../../../utils/config'
 import { stripe } from '../../../utils/StripeClientManager'
 import { upsertCharges } from '../../../lib/charges'
@@ -18,20 +18,17 @@ import { NextApiRequest } from 'next'
 
 const appConfig = getConfig()
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
 
 export async function POST(req: NextApiRequest) {
-  const sig = req.headers['stripe-signature'] as string
-  const buf = req.body
 
-  let event
+  const body = await req.text()
+  const signature = headers().get("Stripe-Signature") as string
+
+  let event: Stripe.Event
+
   try {
-    event = await stripe.webhooks.constructEvent(buf, sig, appConfig.STRIPE_WEBHOOK_SECRET)
-  } catch (err: any) {
+   event = await stripe.webhooks.constructEvent(buf, sig, appConfig.STRIPE_WEBHOOK_SECRET)
+  } catch (error) {
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
   }
 
