@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server'
 
 import { RequestMethod, createMocks } from 'node-mocks-http'
 import stripeMock from './helpers/stripe'
-import { POST } from '../src/app/api/webhooks/route'
+import { POST } from '../src/app/api/webhooks/stripe/route'
 
 jest.doMock('stripe', () => {
   return jest.fn(() => stripeMock)
