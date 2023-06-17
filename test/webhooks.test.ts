@@ -20,7 +20,7 @@ function mockRequestResponse(method: RequestMethod = 'POST') {
 const unixtime = Math.floor(new Date().getTime() / 1000)
 const stripeWebhookSecret = 'whsec_'
 
-describe('/webhooks', () => {
+describe('/webhooks/stripe', () => {
   let req: any
   beforeAll(async () => {
     const ctx = mockRequestResponse('POST')
